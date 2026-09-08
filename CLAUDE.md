@@ -52,9 +52,23 @@ Implementado y validado end-to-end:
   cercanos. El mapa es client-side only (dynamic, ssr: false) para no
   inflar el bundle del servidor.
 
-Pendiente: pipeline de agentes IA, carga real de fotos (upload a
-Supabase Storage en vez de pegar URLs), moderación de publicaciones
-(panel admin), formulario de solicitud de contacto en el detalle.
+- **Pipeline de agentes IA**: procesa inmuebles publicados de forma
+  asíncrona (no bloquea la publicación). Ofrece:
+  - Generación de descripciones mejoradas (Claude): contexto por tipo,
+    operación, zona. Prompt especializado para copy inmobiliario.
+  - Sugerencia de precio (Claude/OpenAI con fallback): basada en
+    características (habitaciones, área, estrato, antigüedad) + ubicación.
+    Devuelve % diferencia vs precio actual + recomendación de ajuste.
+  - Flujo: usuario publica → Property ACTIVO de una vez → en background,
+    fetch async a /api/agents/process-property → descripción y precio
+    sugerido se guardan en la BD sin interferencia.
+  - Configuración: ANTHROPIC_API_KEY y OPENAI_API_KEY en `.env`
+    (ambas opcionales, fallback automático).
+
+Pendiente: carga real de fotos (upload a Supabase Storage en vez de
+pegar URLs), moderación de publicaciones (panel admin), formulario de
+solicitud de contacto en el detalle, análisis de fotos (detectar tipo,
+calidad, características visibles).
 
 ## Stack
 
@@ -170,9 +184,9 @@ npm run dev
 
 ## Próximos pasos previstos (no implementados aún)
 
-1. Pipeline de agentes de IA en `/lib/agents`: procesamiento de fotos,
-   generación de descripciones, geolocalización automática, sugerencia
-   de pricing.
+1. Análisis de fotos: detectar tipo de inmueble, calidad, características
+   visibles (mobiliario, decoración, condición). Usar Claude vision si
+   se pasan URLs de foto (foto completa en base64 o fetch de remote).
 2. Carga real de fotos (Supabase Storage) en vez de pegar URLs.
 3. Moderación de publicaciones (panel admin, usar `PENDIENTE_REVISION`).
 4. Formulario de solicitud de contacto (`ContactRequest`) en la página
