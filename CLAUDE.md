@@ -59,9 +59,14 @@ Implementado y validado end-to-end:
   - Sugerencia de precio (Claude/OpenAI con fallback): basada en
     características (habitaciones, área, estrato, antigüedad) + ubicación.
     Devuelve % diferencia vs precio actual + recomendación de ajuste.
+  - Análisis de fotos (Claude Vision): detecta tipo inmueble visible,
+    calidad (excelente/buena/regular/pobre), luminosidad, características
+    visibles (mobiliario, decoración, orden) y sugerencias de mejora.
+    Procesa cada foto, consolida análisis en resumen. Se guarda en
+    campo JSON `analisisVisual`.
   - Flujo: usuario publica → Property ACTIVO de una vez → en background,
-    fetch async a /api/agents/process-property → descripción y precio
-    sugerido se guardan en la BD sin interferencia.
+    fetch async a /api/agents/process-property → descripción, precio
+    sugerido y análisis visual se guardan en la BD sin interferencia.
   - Configuración: ANTHROPIC_API_KEY y OPENAI_API_KEY en `.env`
     (ambas opcionales, fallback automático).
 
@@ -184,16 +189,26 @@ npm run dev
 
 ## Próximos pasos previstos (no implementados aún)
 
-1. Análisis de fotos: detectar tipo de inmueble, calidad, características
-   visibles (mobiliario, decoración, condición). Usar Claude vision si
-   se pasan URLs de foto (foto completa en base64 o fetch de remote).
-2. Carga real de fotos (Supabase Storage) en vez de pegar URLs.
-3. Moderación de publicaciones (panel admin, usar `PENDIENTE_REVISION`).
-4. Formulario de solicitud de contacto (`ContactRequest`) en la página
-   de detalle — hoy el detalle solo enlaza a WhatsApp/llamada directa.
-5. Mejoras al mapa: click en pin abre detalle de la propiedad, geolocation
-   del usuario, opciones de vista (satellite, terrain), búsqueda por radio
-   de distancia.
+1. Carga real de fotos (Supabase Storage) en vez de pegar URLs.
+   - Bucket con políticas de acceso (lectura pública para fotos, escritura
+     solo propietario).
+   - Upload form en /publicar con drag-drop / file picker.
+   - Reemplazar URL strings con referencias a storage.
+2. Moderación de publicaciones (panel admin):
+   - Rol ADMIN puede ver inmuebles PENDIENTE_REVISION.
+   - Botones: Aprobar → ACTIVO, Rechazar → (borrar con razón).
+   - Al publicar, forzar estado PENDIENTE_REVISION (no ACTIVO de una vez).
+3. Formulario de solicitud de contacto en detalle: guardar ContactRequest
+   y enviar notificación al propietario (email o WhatsApp bot).
+4. Mejoras al mapa:
+   - Click en pin abre modal/drawer del detalle.
+   - Geolocation del usuario (botón "Ubicar me").
+   - Búsqueda por radio de distancia desde ubicación.
+   - Opciones de vista (satellite, terrain).
+5. Dashboard del propietario (en /perfil):
+   - Estadísticas: visualizaciones, contactos, ofertas.
+   - Historial de precios sugeridos.
+   - Editor rápido de descripción/precio.
 
 ## Convenciones para trabajar en este repo
 
