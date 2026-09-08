@@ -121,5 +121,14 @@ export async function POST(request: Request) {
     },
   });
 
+  // Dispara procesamiento de IA en background (no espera respuesta)
+  if (process.env.NEXTAUTH_URL) {
+    fetch(`${process.env.NEXTAUTH_URL}/api/agents/process-property`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ propertyId: property.id }),
+    }).catch((err) => console.error("Error disparando agente:", err));
+  }
+
   return NextResponse.json({ id: property.id });
 }

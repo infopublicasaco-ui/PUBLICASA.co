@@ -309,6 +309,148 @@ async function main() {
     },
   });
 
+  const apartamentoChiaSerralta = await prisma.property.create({
+    data: {
+      titulo: "Apartamento en Chía, Cundinamarca - Conjunto Serralta",
+      descripcion:
+        "Excelente apartamento: hermoso, de alta rentabilidad y a un precio insuperable. Ubicación estratégica en la Variante Chía - Cota. Tu próximo hogar en Chía lo tiene TODO. Conjunto residencial de alta calidad con seguridad 24 horas.",
+      tipo: PropertyType.APARTAMENTO,
+      operacion: OperationType.VENTA,
+      precio: 255000000,
+      areaConstruidaM2: 41,
+      areaPrivadaM2: 41,
+      habitaciones: 1,
+      banos: 1,
+      parqueaderos: 1,
+      estrato: 4,
+      antiguedadAnios: 2,
+      piso: 3,
+      totalPisos: 8,
+      ascensor: true,
+      administracion: 201000,
+      ciudad: "Chía",
+      departamento: "Cundinamarca",
+      barrio: "Serralta",
+      direccion: "Variante Chía - Cota, Conjunto Serralta",
+      latitud: 4.8608,
+      longitud: -74.0548,
+      caracteristicasSector: {
+        transporte_publico: true,
+        colegios_cercanos: true,
+        centros_comerciales_cercanos: true,
+        seguridad: "alta",
+        descripcion_sector:
+          "Zona residencial en desarrollo con excelente ubicación en la Variante Chía. Cercano a centros comerciales, colegios y servicios.",
+      },
+      caracteristicasAdicionales: {
+        cocina_integral: true,
+        closets: true,
+        conjunto_cerrado: true,
+      },
+      estado: PropertyStatus.ACTIVO,
+      propietarioId: laura.id,
+      fotos: {
+        create: [
+          { url: "https://picsum.photos/seed/publicasa-apto-chia-serralta-1/1200/800", orden: 0, esPortada: true },
+          { url: "https://picsum.photos/seed/publicasa-apto-chia-serralta-2/1200/800", orden: 1 },
+        ],
+      },
+    },
+  });
+
+  const apartaestudioChiaLauraVicuna = await prisma.property.create({
+    data: {
+      titulo: "Apartaestudio en Chía, Cundinamarca - Laura Vicuña",
+      descripcion:
+        "El apartamento cuenta con un área de 40 m² distribuidos de manera moderna y funcional. Dispone de un espacio principal tipo sala-comedor-cocina en concepto abierto, que brinda amplitud e integración, una zona de descanso con área de cama y clóset integrado, y un baño completo. Ubicación estratégica en Laura Vicuña, Chía.",
+      tipo: PropertyType.APARTAMENTO,
+      operacion: OperationType.VENTA,
+      precio: 249900000,
+      areaConstruidaM2: 40,
+      areaPrivadaM2: 40,
+      habitaciones: 1,
+      banos: 1,
+      parqueaderos: 1,
+      estrato: 4,
+      antiguedadAnios: 1,
+      piso: 2,
+      totalPisos: 6,
+      ascensor: true,
+      administracion: 180000,
+      ciudad: "Chía",
+      departamento: "Cundinamarca",
+      barrio: "Laura Vicuña",
+      direccion: "Laura Vicuña, Chía",
+      latitud: 4.862,
+      longitud: -74.053,
+      caracteristicasSector: {
+        transporte_publico: true,
+        colegios_cercanos: true,
+        seguridad: "alta",
+        descripcion_sector: "Barrio residencial en Chía con buena accesibilidad y servicios completos.",
+      },
+      caracteristicasAdicionales: {
+        cocina_integral: true,
+        closets: true,
+      },
+      estado: PropertyStatus.ACTIVO,
+      propietarioId: andres.id,
+      fotos: {
+        create: [
+          { url: "https://picsum.photos/seed/publicasa-apto-chia-laura-1/1200/800", orden: 0, esPortada: true },
+          { url: "https://picsum.photos/seed/publicasa-apto-chia-laura-2/1200/800", orden: 1 },
+        ],
+      },
+    },
+  });
+
+  const apartaestudioChiaDelicias = await prisma.property.create({
+    data: {
+      titulo: "Apartaestudio en arriendo en Chía - Delicias Norte",
+      descripcion:
+        "¿Buscas arrendar un apartamento en Chía? Disfruta de 29,84 m² en un práctico monoambiente que integra 1 habitación, un baño, cocina integral y parqueadero privado descubierto. Diseñado para brindarte comodidad y funcionalidad en cada metro cuadrado. Ubicación privilegiada en el centro de Chía dentro de la Agrupación Residencial Campus Club, con acceso inmediato a gran variedad de servicios. Contrato mínimo 1 año.",
+      tipo: PropertyType.APARTAMENTO,
+      operacion: OperationType.ARRIENDO,
+      precio: 1350000,
+      areaConstruidaM2: 29,
+      areaPrivadaM2: 29,
+      habitaciones: 1,
+      banos: 1,
+      parqueaderos: 1,
+      estrato: 4,
+      antiguedadAnios: 3,
+      piso: 2,
+      totalPisos: 4,
+      administracion: 180000,
+      ciudad: "Chía",
+      departamento: "Cundinamarca",
+      barrio: "Delicias Norte",
+      direccion: "Campus Club, Delicias Norte, Chía",
+      latitud: 4.865,
+      longitud: -74.055,
+      caracteristicasSector: {
+        transporte_publico: true,
+        colegios_cercanos: true,
+        centros_comerciales_cercanos: true,
+        seguridad: "alta",
+        descripcion_sector:
+          "Centro de Chía con excelente dinámica urbana. Acceso inmediato a servicios, compras y entretenimiento.",
+      },
+      caracteristicasAdicionales: {
+        cocina_integral: true,
+        parqueadero_privado: true,
+      },
+      estado: PropertyStatus.ACTIVO,
+      propietarioId: carlos.id,
+      fotos: {
+        create: [
+          { url: "https://picsum.photos/seed/publicasa-apto-chia-delicias-1/1200/800", orden: 0, esPortada: true },
+          { url: "https://picsum.photos/seed/publicasa-apto-chia-delicias-2/1200/800", orden: 1 },
+        ],
+      },
+    },
+  });
+
   await prisma.contactRequest.create({
     data: {
       mensaje: "Hola, me interesa agendar una visita este fin de semana.",
