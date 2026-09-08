@@ -44,10 +44,17 @@ Implementado y validado end-to-end:
   carga real de archivos más adelante no requiere tocar el modelo de
   datos, solo el input del formulario.
 
-Pendiente: navegador de mapa, pipeline de agentes IA, carga real de
-fotos (upload a Supabase Storage en vez de pegar URLs), moderación de
-publicaciones (panel admin), formulario de solicitud de contacto en
-el detalle.
+- **Navegador de mapa interactivo**: home es ahora una página
+  responsiva con filtros (Comprar/Arrendar, tipo, precio, búsqueda
+  por ciudad/barrio) a la izquierda y mapa de Leaflet + OpenStreetMap
+  a la derecha. Los inmuebles se muestran como pins con etiquetas de
+  precio compacto ($930M). Usa clustering automático para 3+ marcadores
+  cercanos. El mapa es client-side only (dynamic, ssr: false) para no
+  inflar el bundle del servidor.
+
+Pendiente: pipeline de agentes IA, carga real de fotos (upload a
+Supabase Storage en vez de pegar URLs), moderación de publicaciones
+(panel admin), formulario de solicitud de contacto en el detalle.
 
 ## Stack
 
@@ -163,15 +170,16 @@ npm run dev
 
 ## Próximos pasos previstos (no implementados aún)
 
-1. Navegador de mapa (Google Maps / Mapbox) para explorar inmuebles
-   por ubicación.
-2. Pipeline de agentes de IA en `/lib/agents`: procesamiento de fotos,
+1. Pipeline de agentes de IA en `/lib/agents`: procesamiento de fotos,
    generación de descripciones, geolocalización automática, sugerencia
    de pricing.
-3. Carga real de fotos (Supabase Storage) en vez de pegar URLs.
-4. Moderación de publicaciones (panel admin, usar `PENDIENTE_REVISION`).
-5. Formulario de solicitud de contacto (`ContactRequest`) en la página
+2. Carga real de fotos (Supabase Storage) en vez de pegar URLs.
+3. Moderación de publicaciones (panel admin, usar `PENDIENTE_REVISION`).
+4. Formulario de solicitud de contacto (`ContactRequest`) en la página
    de detalle — hoy el detalle solo enlaza a WhatsApp/llamada directa.
+5. Mejoras al mapa: click en pin abre detalle de la propiedad, geolocation
+   del usuario, opciones de vista (satellite, terrain), búsqueda por radio
+   de distancia.
 
 ## Convenciones para trabajar en este repo
 
