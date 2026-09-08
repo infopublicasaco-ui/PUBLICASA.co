@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db/prisma";
 import { generatePropertyDescription, generatePropertyTitle } from "@/lib/agents/description-generator";
 import { suggestPrice } from "@/lib/agents/pricing-suggester";
+import { analyzePropertyPhotos } from "@/lib/agents/photo-analyzer";
 
 export async function POST(request: Request) {
   try {
@@ -49,6 +50,10 @@ export async function POST(request: Request) {
       precioActual: property.precio.toNumber(),
     });
 
+    // Analizar fotos
+    const photoUrls = property.fotos.map((f) => f.url);
+    const photoAnalysis = photoUrls.length > 0 ? await analyzePropertyPhotos(photoUrls) : null;
+
     // Actualizar propiedad con datos mejorados
     const updates: Record<string, any> = {};
 
@@ -58,6 +63,10 @@ export async function POST(request: Request) {
 
     if (suggestedPrice) {
       updates.precioSugerido = suggestedPrice;
+    }
+
+    if (photoAnalysis) {
+      updates.analisisVisual = photoAnalysis;
     }
 
     // Solo actualizar si hay cambios
@@ -74,6 +83,8 @@ export async function POST(request: Request) {
       updates: {
         descripcionMejorada: !!improvedDescription,
         precioSuggerido: suggestedPrice || null,
+        fotosAnalizadas: photoAnalysis ? photoAnalysis.analisis.length : 0,
+        resumenFotos: photoAnalysis?.resumen || null,
       },
     });
   } catch (error) {

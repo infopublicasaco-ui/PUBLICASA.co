@@ -166,6 +166,9 @@ model Property {
   caracteristicasSector      Json? @map("caracteristicas_sector")
   caracteristicasAdicionales Json? @map("caracteristicas_adicionales")
 
+  // Análisis de fotos con IA (Claude Vision)
+  analisisVisual Json? @map("analisis_visual")
+
   estado PropertyStatus @default(PENDIENTE_REVISION)
 
   // Reservado para futuros agentes de IA (análisis de ubicación / pricing)
