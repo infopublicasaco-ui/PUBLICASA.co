@@ -28,9 +28,26 @@ Implementado y validado end-to-end:
   opcional), perfil, middleware de rutas protegidas. Ver sección
   "Autenticación" abajo para el detalle de decisiones.
 
-Pendiente: formulario real de publicación de inmuebles (`/publicar`
-hoy es un placeholder protegido), navegador de mapa, pipeline de
-agentes IA.
+- Formulario real de publicación (`/publicar`): cualquier usuario
+  autenticado (sin importar su `rol`) puede publicar un inmueble.
+  Crea la `Property` con `estado: ACTIVO` de una vez (sin cola de
+  moderación todavía — no hay panel de admin para aprobarlas, así que
+  forzar `PENDIENTE_REVISION` dejaría los inmuebles invisibles sin
+  forma de activarlos). Los campos de habitaciones/baños/parqueaderos/
+  piso/ascensor se ocultan cuando `tipo = LOTE`. Las características de
+  sector/adicionales se arman con checkboxes fijos (mismas claves que
+  usa el seed) en vez de un editor de JSON libre.
+- **Fotos son URLs pegadas por el usuario, no upload real.** Se
+  decidió así para no depender de configurar un bucket de Supabase
+  Storage con políticas de acceso todavía; el campo en BD
+  (`PropertyPhoto.url`) es un string en ambos casos, así que migrar a
+  carga real de archivos más adelante no requiere tocar el modelo de
+  datos, solo el input del formulario.
+
+Pendiente: navegador de mapa, pipeline de agentes IA, carga real de
+fotos (upload a Supabase Storage en vez de pegar URLs), moderación de
+publicaciones (panel admin), formulario de solicitud de contacto en
+el detalle.
 
 ## Stack
 
@@ -146,14 +163,14 @@ npm run dev
 
 ## Próximos pasos previstos (no implementados aún)
 
-1. Formulario real de publicación de inmuebles en `/publicar`
-   (creación de `Property` + carga de fotos).
-2. Navegador de mapa (Google Maps / Mapbox) para explorar inmuebles
+1. Navegador de mapa (Google Maps / Mapbox) para explorar inmuebles
    por ubicación.
-3. Pipeline de agentes de IA en `/lib/agents`: procesamiento de fotos,
+2. Pipeline de agentes de IA en `/lib/agents`: procesamiento de fotos,
    generación de descripciones, geolocalización automática, sugerencia
    de pricing.
-4. Formulario de solicitud de contacto (`ContactRequest`) en la página
+3. Carga real de fotos (Supabase Storage) en vez de pegar URLs.
+4. Moderación de publicaciones (panel admin, usar `PENDIENTE_REVISION`).
+5. Formulario de solicitud de contacto (`ContactRequest`) en la página
    de detalle — hoy el detalle solo enlaza a WhatsApp/llamada directa.
 
 ## Convenciones para trabajar en este repo

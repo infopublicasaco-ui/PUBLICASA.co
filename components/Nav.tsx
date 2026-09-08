@@ -15,6 +15,9 @@ export function Nav() {
         <div className="flex h-8 items-center gap-4 text-sm">
           {status === "authenticated" && (
             <>
+              <Link href="/publicar" className="text-gray-700 hover:text-gray-900">
+                Publicar
+              </Link>
               <Link href="/perfil" className="text-gray-700 hover:text-gray-900">
                 Mi perfil
               </Link>
