@@ -8,5 +8,199 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-// Modelos (User, Property, etc.) se agregarán cuando se implemente
-// la lógica de negocio.
+// ---------------------------------------------------------------------------
+// Enums
+// ---------------------------------------------------------------------------
+
+enum Role {
+  PROPIETARIO
+  COMPRADOR
+  ADMIN
+}
+
+enum PropertyType {
+  CASA
+  APARTAMENTO
+  LOTE
+  LOCAL
+}
+
+enum OperationType {
+  VENTA
+  ARRIENDO
+}
+
+enum PropertyStatus {
+  PENDIENTE_REVISION
+  ACTIVO
+  PAUSADO
+  VENDIDO
+  ARRENDADO
+}
+
+// ---------------------------------------------------------------------------
+// User
+// ---------------------------------------------------------------------------
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String // hash, nunca texto plano
+  nombre    String
+  telefono  String?
+  whatsapp  String?
+  rol       Role
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  propiedades         Property[]       @relation("PropietarioProperties")
+  solicitudesContacto ContactRequest[] @relation("InteresadoContactRequests")
+  busquedasGuardadas  SavedSearch[]
+
+  @@map("users")
+}
+
+// ---------------------------------------------------------------------------
+// Property
+// ---------------------------------------------------------------------------
+
+model Property {
+  id          String        @id @default(cuid())
+  titulo      String
+  descripcion String        @db.Text
+  tipo        PropertyType
+  operacion   OperationType
+
+  // Precio
+  precio         Decimal  @db.Decimal(14, 2)
+  precioSugerido Decimal? @db.Decimal(14, 2) @map("precio_sugerido") // reservado para futuro agente de pricing
+
+  // Características físicas (nullable: no todos los tipos de inmueble aplican,
+  // ej. un lote no tiene habitaciones/baños/parqueaderos)
+  areaConstruidaM2 Float? @map("area_construida_m2")
+  areaPrivadaM2    Float? @map("area_privada_m2")
+  habitaciones     Int?
+  banos            Int?
+  parqueaderos     Int?
+  estrato          Int?
+  antiguedadAnios  Int?   @map("antiguedad_anios")
+  piso             Int?
+  totalPisos       Int?   @map("total_pisos")
+
+  // Características adicionales booleanas
+  ascensor            Boolean @default(false)
+  amoblado            Boolean @default(false)
+  tieneBalcon         Boolean @default(false) @map("tiene_balcon")
+  tieneTerraza        Boolean @default(false) @map("tiene_terraza")
+  tienePatio          Boolean @default(false) @map("tiene_patio")
+  tieneEstudio        Boolean @default(false) @map("tiene_estudio")
+  tieneDeposito       Boolean @default(false) @map("tiene_deposito")
+  tieneZonaLavanderia Boolean @default(false) @map("tiene_zona_lavanderia")
+
+  // Información económica adicional
+  administracion Decimal? @db.Decimal(12, 2)
+
+  // Ubicación (clave para mapa, búsqueda por zona y futuro score de ubicación)
+  ciudad       String
+  departamento String?
+  localidad    String?
+  barrio       String
+  direccion    String
+  latitud      Float
+  longitud     Float
+
+  // JSON flexibles: permiten ampliar información sin migrar el schema.
+  // caracteristicasSector, ej: { "colegios_cercanos": true, "seguridad": "alta", ... }
+  // caracteristicasAdicionales, ej: { "piscina": true, "vigilancia": true, ... }
+  caracteristicasSector      Json? @map("caracteristicas_sector")
+  caracteristicasAdicionales Json? @map("caracteristicas_adicionales")
+
+  estado PropertyStatus @default(PENDIENTE_REVISION)
+
+  // Reservado para futuros agentes de IA (análisis de ubicación / pricing)
+  scoreUbicacion Float? @map("score_ubicacion")
+
+  propietarioId String
+  propietario   User   @relation("PropietarioProperties", fields: [propietarioId], references: [id])
+
+  fotos               PropertyPhoto[]
+  solicitudesContacto ContactRequest[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([tipo])
+  @@index([operacion])
+  @@index([estado])
+  @@index([ciudad])
+  @@index([barrio])
+  @@index([precio])
+  @@index([propietarioId])
+  @@index([createdAt])
+  @@index([latitud, longitud])
+  @@map("properties")
+}
+
+// ---------------------------------------------------------------------------
+// PropertyPhoto
+// ---------------------------------------------------------------------------
+
+model PropertyPhoto {
+  id        String  @id @default(cuid())
+  url       String
+  orden     Int     @default(0)
+  esPortada Boolean @default(false) @map("es_portada")
+
+  propertyId String
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([propertyId])
+  @@map("property_photos")
+}
+
+// ---------------------------------------------------------------------------
+// ContactRequest
+// ---------------------------------------------------------------------------
+
+model ContactRequest {
+  id       String  @id @default(cuid())
+  mensaje  String  @db.Text
+  telefono String?
+  email    String?
+
+  propertyId String
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  // El interesado puede ser un usuario registrado (interesadoId) o un visitante
+  // no registrado que solo deja email/telefono.
+  interesadoId String?
+  interesado   User?   @relation("InteresadoContactRequests", fields: [interesadoId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([propertyId])
+  @@index([interesadoId])
+  @@index([createdAt])
+  @@map("contact_requests")
+}
+
+// ---------------------------------------------------------------------------
+// SavedSearch
+// ---------------------------------------------------------------------------
+
+model SavedSearch {
+  id      String  @id @default(cuid())
+  nombre  String?
+  filtros Json // ej: { "operacion": "VENTA", "ciudad": "Bogotá", "precioMax": 500000000 }
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([userId])
+  @@map("saved_searches")
+}
