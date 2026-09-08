@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { Nav } from "@/components/Nav";
+import { SessionProvider } from "@/components/SessionProvider";
 
 export const metadata: Metadata = {
   title: "PublicAsa.co | Marketplace inmobiliario",
@@ -14,7 +16,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es">
-      <body>{children}</body>
+      <body>
+        <SessionProvider>
+          <Nav />
+          {children}
+        </SessionProvider>
+      </body>
     </html>
   );
 }
