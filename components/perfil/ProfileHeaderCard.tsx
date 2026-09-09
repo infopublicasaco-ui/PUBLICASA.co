@@ -4,7 +4,7 @@ interface ProfileHeaderCardProps {
   nombre: string;
   email: string;
   rol: string;
-  telefono?: string;
+  telefono?: string | null;
 }
 
 export function ProfileHeaderCard({ nombre, email, rol, telefono }: ProfileHeaderCardProps) {
