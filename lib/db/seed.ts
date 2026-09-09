@@ -1,12 +1,10 @@
 import { PrismaClient, Role, PropertyType, OperationType, PropertyStatus } from "@prisma/client";
-import { createHash } from "node:crypto";
+import bcrypt from "bcrypt";
 
 const prisma = new PrismaClient();
 
-// Placeholder de hashing solo para datos de prueba: la autenticación real
-// (bcrypt/argon2) llegará junto con el flujo de registro/login.
-function fakeHash(password: string) {
-  return createHash("sha256").update(password).digest("hex");
+async function hashPassword(password: string) {
+  return bcrypt.hash(password, 10);
 }
 
 async function main() {
@@ -21,7 +19,7 @@ async function main() {
     prisma.user.create({
       data: {
         email: "camila.propietaria@example.com",
-        password: fakeHash("Password123!"),
+        password: await hashPassword("Password123!"),
         nombre: "Camila Rojas",
         telefono: "3001234567",
         whatsapp: "3001234567",
@@ -31,7 +29,7 @@ async function main() {
     prisma.user.create({
       data: {
         email: "andres.propietario@example.com",
-        password: fakeHash("Password123!"),
+        password: await hashPassword("Password123!"),
         nombre: "Andrés Gómez",
         telefono: "3009876543",
         whatsapp: "3009876543",
@@ -41,7 +39,7 @@ async function main() {
     prisma.user.create({
       data: {
         email: "laura.compradora@example.com",
-        password: fakeHash("Password123!"),
+        password: await hashPassword("Password123!"),
         nombre: "Laura Martínez",
         telefono: "3012223344",
         rol: Role.COMPRADOR,
@@ -50,7 +48,7 @@ async function main() {
     prisma.user.create({
       data: {
         email: "carlos.comprador@example.com",
-        password: fakeHash("Password123!"),
+        password: await hashPassword("Password123!"),
         nombre: "Carlos Pérez",
         telefono: "3023334455",
         rol: Role.COMPRADOR,
@@ -61,7 +59,7 @@ async function main() {
   await prisma.user.create({
     data: {
       email: "admin@publicasa.co",
-      password: fakeHash("Password123!"),
+      password: await hashPassword("Password123!"),
       nombre: "Admin PUBLICASA.co",
       rol: Role.ADMIN,
     },
