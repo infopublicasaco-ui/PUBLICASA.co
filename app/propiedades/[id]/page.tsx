@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import Link from "next/link";
 import { notFound } from "next/navigation";
+import { auth } from "@/lib/auth";
 import { getPropertyById } from "@/lib/db/properties";
 import { formatCOP, OPERACION_LABEL, TIPO_LABEL } from "@/lib/format";
 import { ContactForm } from "@/components/ContactForm";
@@ -23,8 +25,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function PropertyDetailPage({ params }: Props) {
-  const property = await getPropertyById(params.id);
+  const [property, session] = await Promise.all([
+    getPropertyById(params.id),
+    auth(),
+  ]);
   if (!property) notFound();
+
+  const esDelUsuario = session?.user?.id === property.propietarioId;
 
   const portada = property.fotos.find((f) => f.esPortada) ?? property.fotos[0];
   const restoFotos = property.fotos.filter((f) => f.id !== portada?.id);
@@ -215,34 +222,48 @@ export default async function PropertyDetailPage({ params }: Props) {
         </div>
 
         <aside className="h-fit rounded-xl border border-gray-200 p-5">
-          <h2 className="text-lg font-semibold text-gray-900">Contactar al propietario</h2>
-          <p className="mt-1 text-sm text-gray-500">{property.propietario.nombre}</p>
-          <div className="mt-4 flex flex-col gap-2">
-            {property.propietario.whatsapp && (
-              <a
-                href={`https://wa.me/57${property.propietario.whatsapp.replace(/\D/g, "")}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="rounded-lg bg-green-600 px-4 py-2 text-center text-sm font-medium text-white hover:bg-green-700"
+          {esDelUsuario ? (
+            <>
+              <h2 className="text-lg font-semibold text-gray-900">Tu inmueble</h2>
+              <Link
+                href={`/propiedades/${property.id}/editar`}
+                className="mt-4 block w-full rounded-lg border border-gray-300 px-4 py-2 text-center text-sm font-medium text-gray-700 hover:bg-gray-50"
               >
-                WhatsApp
-              </a>
-            )}
-            {property.propietario.telefono && (
-              <a
-                href={`tel:${property.propietario.telefono}`}
-                className="rounded-lg border border-gray-300 px-4 py-2 text-center text-sm font-medium text-gray-700 hover:bg-gray-50"
-              >
-                Llamar
-              </a>
-            )}
-          </div>
+                Editar información
+              </Link>
+            </>
+          ) : (
+            <>
+              <h2 className="text-lg font-semibold text-gray-900">Contactar al propietario</h2>
+              <p className="mt-1 text-sm text-gray-500">{property.propietario.nombre}</p>
+              <div className="mt-4 flex flex-col gap-2">
+                {property.propietario.whatsapp && (
+                  <a
+                    href={`https://wa.me/57${property.propietario.whatsapp.replace(/\D/g, "")}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="rounded-lg bg-green-600 px-4 py-2 text-center text-sm font-medium text-white hover:bg-green-700"
+                  >
+                    WhatsApp
+                  </a>
+                )}
+                {property.propietario.telefono && (
+                  <a
+                    href={`tel:${property.propietario.telefono}`}
+                    className="rounded-lg border border-gray-300 px-4 py-2 text-center text-sm font-medium text-gray-700 hover:bg-gray-50"
+                  >
+                    Llamar
+                  </a>
+                )}
+              </div>
 
-          {property.estado === "ACTIVO" && (
-            <div className="mt-5 border-t border-gray-100 pt-5">
-              <p className="mb-3 text-sm text-gray-500">O envíale un mensaje:</p>
-              <ContactForm propertyId={property.id} tituloInmueble={property.titulo} />
-            </div>
+              {property.estado === "ACTIVO" && (
+                <div className="mt-5 border-t border-gray-100 pt-5">
+                  <p className="mb-3 text-sm text-gray-500">O envíale un mensaje:</p>
+                  <ContactForm propertyId={property.id} tituloInmueble={property.titulo} />
+                </div>
+              )}
+            </>
           )}
         </aside>
       </div>
