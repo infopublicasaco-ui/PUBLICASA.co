@@ -96,9 +96,17 @@ Implementado y validado end-to-end:
     cualquiera de esos canales, así que montarlos encima después no
     cambia el modelo de datos.
 
+- **Edición de inmuebles** (`/propiedades/[id]/editar`): propietarios
+  pueden actualizar todo (título, descripción, características, fotos,
+  precio, ubicación). Cierra el ciclo de moderación: un inmueble
+  `RECHAZADO` que se edita y guarda vuelve a `PENDIENTE_REVISION`
+  (limpia `motivoRechazo`). Inmuebles `ACTIVO` que se editan siguen en
+  `ACTIVO` sin interrupción. Solo el propietario puede acceder (retorna
+  404 a otros).
+
 Pendiente: carga real de fotos (upload a Supabase Storage en vez de
 pegar URLs), notificación por email/WhatsApp de las solicitudes de
-contacto.
+contacto, activación del pipeline de IA (ANTHROPIC_API_KEY).
 
 ## Stack
 
@@ -220,22 +228,32 @@ npm run dev
    iniciar sesión** (incluido `admin@publicasa.co`). Para probar el panel
    de moderación hay que crear un ADMIN con `bcrypt.hash` a mano. Cambiar
    `fakeHash` por `bcrypt.hash` y volver a sembrar lo resuelve.
-2. Carga real de fotos (Supabase Storage) en vez de pegar URLs.
+
+2. **Activación del pipeline de IA** (descripciones, pricing, análisis visual):
+   - Configurar `ANTHROPIC_API_KEY` en `.env` (es la única requerida).
+   - El flujo ya está implementado, solo falta la credencial.
+   - Endpoint `/api/agents/process-property` corre en background tras
+     publicar o editar un inmueble.
+
+3. Carga real de fotos (Supabase Storage) en vez de pegar URLs.
    - Bucket con políticas de acceso (lectura pública para fotos, escritura
      solo propietario).
-   - Upload form en /publicar con drag-drop / file picker.
+   - Upload form en /publicar y /editar con drag-drop / file picker.
    - Reemplazar URL strings con referencias a storage.
-3. Notificar las solicitudes de contacto por fuera de la app (email vía
+
+4. Notificar las solicitudes de contacto por fuera de la app (email vía
    Resend o WhatsApp); hoy solo hay bandeja in-app en `/perfil`.
-4. Mejoras al mapa:
+
+5. Mejoras al mapa:
    - Click en pin abre modal/drawer del detalle.
    - Geolocation del usuario (botón "Ubicar me").
    - Búsqueda por radio de distancia desde ubicación.
    - Opciones de vista (satellite, terrain).
-5. Dashboard del propietario (en /perfil):
+
+6. Dashboard del propietario (en /perfil):
    - Estadísticas: visualizaciones, contactos, ofertas.
    - Historial de precios sugeridos.
-   - Editor rápido de descripción/precio.
+   - Editor rápido inline de descripción/precio.
 
 ## Convenciones para trabajar en este repo
 
