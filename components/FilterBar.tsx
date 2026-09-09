@@ -27,7 +27,7 @@ export function FilterBar() {
       if (value) params.set(key, value);
       else params.delete(key);
     }
-    router.push(`/?${params.toString()}`);
+    router.push(`/inmuebles?${params.toString()}`);
   }
 
   function handleSubmit(e: React.FormEvent) {

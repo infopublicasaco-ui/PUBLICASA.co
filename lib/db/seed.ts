@@ -62,7 +62,7 @@ async function main() {
     data: {
       email: "admin@publicasa.co",
       password: fakeHash("Password123!"),
-      nombre: "Admin PublicAsa",
+      nombre: "Admin PUBLICASA.co",
       rol: Role.ADMIN,
     },
   });

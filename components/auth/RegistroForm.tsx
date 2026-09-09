@@ -97,7 +97,7 @@ export function RegistroForm({ googleEnabled }: { googleEnabled: boolean }) {
       </div>
 
       <div>
-        <p className="text-sm font-medium text-gray-700">¿Qué te trae a PublicAsa?</p>
+        <p className="text-sm font-medium text-gray-700">¿Qué te trae a PUBLICASA.co?</p>
         <div className="mt-2 grid grid-cols-2 gap-2">
           <button
             type="button"

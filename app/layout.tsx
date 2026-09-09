@@ -4,9 +4,9 @@ import { Nav } from "@/components/Nav";
 import { SessionProvider } from "@/components/SessionProvider";
 
 export const metadata: Metadata = {
-  title: "PublicAsa.co | Marketplace inmobiliario",
+  title: "PUBLICASA.co | Marketplace inmobiliario",
   description:
-    "Encuentra, publica y gestiona inmuebles en PublicAsa.co, el marketplace inmobiliario potenciado con agentes de IA.",
+    "Encuentra, publica y gestiona inmuebles en PUBLICASA.co, el marketplace inmobiliario potenciado con agentes de IA.",
 };
 
 export default function RootLayout({

@@ -34,6 +34,15 @@ export function getFilteredProperties(filters: PropertyFilters = {}) {
   });
 }
 
+export function getFeaturedProperties(limit = 3) {
+  return prisma.property.findMany({
+    where: { estado: "ACTIVO" },
+    include: { fotos: { orderBy: { orden: "asc" } } },
+    orderBy: { createdAt: "desc" },
+    take: limit,
+  });
+}
+
 export function getPropertyById(id: string) {
   return prisma.property.findUnique({
     where: { id },
