@@ -33,6 +33,7 @@ enum OperationType {
 enum PropertyStatus {
   PENDIENTE_REVISION
   ACTIVO
+  RECHAZADO
   PAUSADO
   VENDIDO
   ARRENDADO
@@ -171,6 +172,10 @@ model Property {
 
   estado PropertyStatus @default(PENDIENTE_REVISION)
 
+  // Motivo que el admin dejó al rechazar; se le muestra al propietario en
+  // /perfil para que sepa qué corregir. Null salvo en estado RECHAZADO.
+  motivoRechazo String? @db.Text @map("motivo_rechazo")
+
   // Reservado para futuros agentes de IA (análisis de ubicación / pricing)
   scoreUbicacion Float? @map("score_ubicacion")
 
@@ -221,8 +226,11 @@ model PropertyPhoto {
 model ContactRequest {
   id       String  @id @default(cuid())
   mensaje  String  @db.Text
+  nombre   String? // lo deja el visitante no registrado; si hay interesadoId se usa su nombre
   telefono String?
   email    String?
+
+  leida Boolean @default(false) // el propietario la marca al revisarla en /perfil
 
   propertyId String
   property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)

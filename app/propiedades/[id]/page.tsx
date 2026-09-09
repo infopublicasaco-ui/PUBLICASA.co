@@ -3,6 +3,7 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import { getPropertyById } from "@/lib/db/properties";
 import { formatCOP, OPERACION_LABEL, TIPO_LABEL } from "@/lib/format";
+import { ContactForm } from "@/components/ContactForm";
 
 export const revalidate = 60;
 
@@ -13,8 +14,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!property) return {};
 
   return {
-    title: `${property.titulo} | PublicAsa.co`,
+    title: `${property.titulo} | PUBLICASA.co`,
     description: property.descripcion.slice(0, 155),
+    // Un inmueble sin aprobar sigue siendo visible por enlace directo (el
+    // propietario cae aquí tras publicar), pero no debe entrar a Google.
+    ...(property.estado !== "ACTIVO" && { robots: { index: false, follow: false } }),
   };
 }
 
@@ -81,6 +85,25 @@ export default async function PropertyDetailPage({ params }: Props) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
+
+      {property.estado === "PENDIENTE_REVISION" && (
+        <div className="mb-6 rounded-xl border border-amber-200 bg-amber-50 p-4">
+          <p className="font-medium text-amber-900">En revisión</p>
+          <p className="mt-1 text-sm text-amber-800">
+            Un administrador revisará esta publicación antes de que aparezca en las búsquedas.
+            Mientras tanto solo es visible con este enlace.
+          </p>
+        </div>
+      )}
+
+      {property.estado === "RECHAZADO" && (
+        <div className="mb-6 rounded-xl border border-red-200 bg-red-50 p-4">
+          <p className="font-medium text-red-900">Publicación rechazada</p>
+          {property.motivoRechazo && (
+            <p className="mt-1 text-sm text-red-800">{property.motivoRechazo}</p>
+          )}
+        </div>
+      )}
 
       <div className="mb-6">
         <span className="inline-block rounded-full bg-gray-900 px-3 py-1 text-xs font-medium text-white">
@@ -214,6 +237,13 @@ export default async function PropertyDetailPage({ params }: Props) {
               </a>
             )}
           </div>
+
+          {property.estado === "ACTIVO" && (
+            <div className="mt-5 border-t border-gray-100 pt-5">
+              <p className="mb-3 text-sm text-gray-500">O envíale un mensaje:</p>
+              <ContactForm propertyId={property.id} tituloInmueble={property.titulo} />
+            </div>
+          )}
         </aside>
       </div>
     </main>

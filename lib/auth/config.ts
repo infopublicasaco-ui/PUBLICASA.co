@@ -1,6 +1,9 @@
 import type { NextAuthConfig } from "next-auth";
 
-const PROTECTED_PATHS = ["/perfil", "/publicar"];
+// El rol ADMIN de /admin no se valida aquí: el middleware corre en Edge y solo
+// garantiza sesión. La comprobación de rol vive en la página y en los API
+// routes de /api/admin (Node runtime), que son la autoridad real.
+const PROTECTED_PATHS = ["/perfil", "/publicar", "/admin"];
 
 // Config "edge-safe": sin Prisma ni bcrypt, para poder correr en el
 // middleware (Edge Runtime). La config completa vive en lib/auth/index.ts.

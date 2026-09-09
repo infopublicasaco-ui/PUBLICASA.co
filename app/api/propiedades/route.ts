@@ -113,7 +113,7 @@ export async function POST(request: Request) {
       longitud,
       caracteristicasSector: caracteristicasSector ?? undefined,
       caracteristicasAdicionales: caracteristicasAdicionales ?? undefined,
-      estado: "ACTIVO",
+      estado: "PENDIENTE_REVISION",
       propietarioId: session.user.id,
       fotos: {
         create: urls.map((url, i) => ({ url, orden: i, esPortada: i === 0 })),

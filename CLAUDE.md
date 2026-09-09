@@ -1,4 +1,4 @@
-# PublicAsa.co
+# PUBLICASA.co
 
 Plataforma inmobiliaria tipo marketplace (similar a Fincaraíz o
 Metrocuadrado) con agentes de IA integrados y un navegador de mapa
@@ -30,10 +30,9 @@ Implementado y validado end-to-end:
 
 - Formulario real de publicación (`/publicar`): cualquier usuario
   autenticado (sin importar su `rol`) puede publicar un inmueble.
-  Crea la `Property` con `estado: ACTIVO` de una vez (sin cola de
-  moderación todavía — no hay panel de admin para aprobarlas, así que
-  forzar `PENDIENTE_REVISION` dejaría los inmuebles invisibles sin
-  forma de activarlos). Los campos de habitaciones/baños/parqueaderos/
+  Crea la `Property` en `estado: PENDIENTE_REVISION`, que espera
+  aprobación en el panel de moderación (ver "Moderación" abajo).
+  Los campos de habitaciones/baños/parqueaderos/
   piso/ascensor se ocultan cuando `tipo = LOTE`. Las características de
   sector/adicionales se arman con checkboxes fijos (mismas claves que
   usa el seed) en vez de un editor de JSON libre.
@@ -70,10 +69,36 @@ Implementado y validado end-to-end:
   - Configuración: ANTHROPIC_API_KEY y OPENAI_API_KEY en `.env`
     (ambas opcionales, fallback automático).
 
+- **Moderación (`/admin`)**: cola de inmuebles en `PENDIENTE_REVISION`
+  que un `Role.ADMIN` aprueba o rechaza.
+  - **Rechazar no borra**: pasa a `RECHAZADO` y guarda `motivoRechazo`
+    (obligatorio). Borrar destruiría el trabajo del propietario y sería
+    irreversible; así el propietario ve en `/perfil` y en el detalle qué
+    debe corregir, y el admin puede reinstaurar el inmueble aprobándolo.
+  - **El rol se valida en Node, no en el middleware**: `middleware.ts`
+    corre en Edge y solo garantiza que haya sesión. La comprobación de
+    `ADMIN` vive en `app/admin/page.tsx` y en `/api/admin/*`, que son la
+    autoridad real. La página responde `notFound()` (404) en vez de 403
+    para no revelar que el panel existe.
+  - Un inmueble no aprobado sigue siendo visible por enlace directo (el
+    propietario aterriza ahí tras publicar) pero lleva `noindex` y no
+    aparece en listados ni acepta solicitudes de contacto.
+
+- **Solicitudes de contacto**: formulario en el detalle (solo si el
+  inmueble está `ACTIVO`) que guarda un `ContactRequest`. Funciona con
+  o sin cuenta: si hay sesión se toman nombre/email de ella, si no, el
+  visitante los escribe. Exige email **o** teléfono para que el
+  propietario pueda responder.
+  - **Notificación in-app, no email todavía**: el propietario ve las
+    solicitudes en `/perfil` con contador de no leídas (`leida`). Se
+    eligió así para no depender de un proveedor de email (Resend/SMTP)
+    ni de WhatsApp Business API; la bandeja es requisito previo de
+    cualquiera de esos canales, así que montarlos encima después no
+    cambia el modelo de datos.
+
 Pendiente: carga real de fotos (upload a Supabase Storage en vez de
-pegar URLs), moderación de publicaciones (panel admin), formulario de
-solicitud de contacto en el detalle, análisis de fotos (detectar tipo,
-calidad, características visibles).
+pegar URLs), notificación por email/WhatsApp de las solicitudes de
+contacto.
 
 ## Stack
 
@@ -189,17 +214,19 @@ npm run dev
 
 ## Próximos pasos previstos (no implementados aún)
 
-1. Carga real de fotos (Supabase Storage) en vez de pegar URLs.
+1. **Arreglar el hash de contraseñas del seed**: `lib/db/seed.ts` usa un
+   `fakeHash` con sha256 de cuando aún no había login. La autenticación
+   real usa `bcrypt.compare`, así que **ningún usuario del seed puede
+   iniciar sesión** (incluido `admin@publicasa.co`). Para probar el panel
+   de moderación hay que crear un ADMIN con `bcrypt.hash` a mano. Cambiar
+   `fakeHash` por `bcrypt.hash` y volver a sembrar lo resuelve.
+2. Carga real de fotos (Supabase Storage) en vez de pegar URLs.
    - Bucket con políticas de acceso (lectura pública para fotos, escritura
      solo propietario).
    - Upload form en /publicar con drag-drop / file picker.
    - Reemplazar URL strings con referencias a storage.
-2. Moderación de publicaciones (panel admin):
-   - Rol ADMIN puede ver inmuebles PENDIENTE_REVISION.
-   - Botones: Aprobar → ACTIVO, Rechazar → (borrar con razón).
-   - Al publicar, forzar estado PENDIENTE_REVISION (no ACTIVO de una vez).
-3. Formulario de solicitud de contacto en detalle: guardar ContactRequest
-   y enviar notificación al propietario (email o WhatsApp bot).
+3. Notificar las solicitudes de contacto por fuera de la app (email vía
+   Resend o WhatsApp); hoy solo hay bandeja in-app en `/perfil`.
 4. Mejoras al mapa:
    - Click en pin abre modal/drawer del detalle.
    - Geolocation del usuario (botón "Ubicar me").
