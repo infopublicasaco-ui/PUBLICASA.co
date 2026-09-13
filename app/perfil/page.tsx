@@ -7,7 +7,7 @@ import { ProfileHeaderCard } from "@/components/perfil/ProfileHeaderCard";
 import { StatsGrid } from "@/components/perfil/StatsGrid";
 import { EmptyState } from "@/components/perfil/EmptyState";
 import { ModerationBanner } from "@/components/perfil/ModerationBanner";
-import { MarcarLeida } from "@/components/perfil/MarcarLeida";
+import { LeadsTable } from "@/components/perfil/LeadsTable";
 
 export default async function PerfilPage() {
   const session = await auth();
@@ -116,60 +116,37 @@ export default async function PerfilPage() {
         </div>
       )}
 
-      {/* Propietario: Solicitudes recibidas */}
+      {/* Propietario: Dashboard de Leads */}
       {isPropietario && (
         <div className="mb-10">
-          <div className="flex items-baseline gap-3">
-            <h2 className="text-lg font-semibold text-gray-900">Solicitudes recibidas</h2>
+          <div className="flex items-baseline gap-3 mb-6">
+            <h2 className="text-lg font-semibold text-gray-900">Gestor de contactos</h2>
             {noLeidas > 0 && (
               <span className="rounded-full bg-brand-blue px-2 py-0.5 text-xs font-medium text-white">
-                {noLeidas} {noLeidas === 1 ? "nueva" : "nuevas"}
+                {noLeidas} {noLeidas === 1 ? "nuevo" : "nuevos"}
               </span>
             )}
           </div>
 
           {solicitudes.length === 0 ? (
-            <div className="mt-6">
-              <EmptyState
-                icon="💌"
-                title="No hay solicitudes todavía"
-                description="Cuando alguien se interese en tus inmuebles, verás sus mensajes aquí"
-              />
-            </div>
+            <EmptyState
+              icon="💼"
+              title="No hay contactos todavía"
+              description="Cuando alguien se interese en tus inmuebles, verás sus contactos aquí con estado y detalles"
+            />
           ) : (
-            <div className="mt-6 space-y-3">
-              {solicitudes.map((s) => (
-                <article
-                  key={s.id}
-                  className={`rounded-lg border p-4 ${
-                    s.leida ? "border-gray-200" : "border-brand-blue/40 bg-brand-blue/5"
-                  }`}
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <p className="font-medium text-gray-900">
-                        {s.interesado?.nombre ?? s.nombre ?? "Interesado sin nombre"}
-                      </p>
-                      <p className="text-sm text-gray-500">
-                        {[s.interesado?.email ?? s.email, s.telefono].filter(Boolean).join(" · ")}
-                      </p>
-                    </div>
-                    <time className="shrink-0 text-xs text-gray-400">
-                      {s.createdAt.toLocaleDateString("es-CO")}
-                    </time>
-                  </div>
-                  <p className="mt-3 text-sm text-gray-700">{s.mensaje}</p>
-                  <div className="mt-3 flex items-center justify-between gap-3">
-                    <Link
-                      href={`/propiedades/${s.property.id}`}
-                      className="text-xs text-gray-500 hover:underline"
-                    >
-                      Sobre: {s.property.titulo}
-                    </Link>
-                    {!s.leida && <MarcarLeida solicitudId={s.id} />}
-                  </div>
-                </article>
-              ))}
+            <div className="rounded-lg border border-gray-200 bg-white overflow-hidden">
+              <LeadsTable leads={solicitudes.map((s) => ({
+                id: s.id,
+                nombre: s.interesado?.nombre ?? s.nombre ?? "Sin nombre",
+                email: s.interesado?.email ?? s.email,
+                telefono: s.telefono,
+                mensaje: s.mensaje,
+                estado: s.estado,
+                leida: s.leida,
+                createdAt: s.createdAt,
+                property: s.property,
+              }))} />
             </div>
           )}
         </div>

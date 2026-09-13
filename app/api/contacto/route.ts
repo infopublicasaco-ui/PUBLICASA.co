@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db/prisma";
+import { sendEmail, getContactEmailHtml, getConfirmationEmailHtml } from "@/lib/email/send";
 
 // Validación con Zod
 const contactSchema = z.object({
@@ -100,9 +101,31 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // TODO: Enviar correos
-    // 1. Correo al vendedor con los datos del contacto
-    // 2. Correo de confirmación al comprador
+    // Enviar correos en background (no bloquear respuesta)
+    Promise.all([
+      // Correo al vendedor
+      sendEmail({
+        to: contactRequest.property.propietario.email,
+        subject: `Nuevo contacto para: ${contactRequest.property.titulo}`,
+        html: getContactEmailHtml(
+          parsedData.nombre,
+          parsedData.email,
+          parsedData.telefono,
+          parsedData.mensaje,
+          contactRequest.property.titulo,
+          contactRequest.property.id
+        ),
+      }),
+      // Correo de confirmación al comprador
+      sendEmail({
+        to: parsedData.email,
+        subject: "Solicitud de contacto recibida - PUBLICASA.co",
+        html: getConfirmationEmailHtml(parsedData.nombre, contactRequest.property.titulo),
+      }),
+    ]).catch((err) => {
+      console.error("Error enviando emails:", err);
+      // No hacer fallar la respuesta si los emails no se envían
+    });
 
     return NextResponse.json(
       {
