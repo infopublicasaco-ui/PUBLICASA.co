@@ -223,14 +223,26 @@ model PropertyPhoto {
 // ContactRequest
 // ---------------------------------------------------------------------------
 
+enum ContactRequestStatus {
+  NUEVO
+  CONTACTADO
+  EN_NEGOCIACION
+  CERRADO
+  DESCARTADO
+}
+
 model ContactRequest {
   id       String  @id @default(cuid())
   mensaje  String  @db.Text
-  nombre   String? // lo deja el visitante no registrado; si hay interesadoId se usa su nombre
-  telefono String?
-  email    String?
+  nombre   String  @default("") // lo deja el visitante no registrado; si hay interesadoId se usa su nombre
+  telefono String
+  email    String
 
   leida Boolean @default(false) // el propietario la marca al revisarla en /perfil
+  estado  ContactRequestStatus @default(NUEVO)
+  origen  String @default("formulario_web")
+  ipAddress String? @map("ip_address")
+  consentimientoDatos Boolean @default(true) @map("consentimiento_datos")
 
   propertyId String
   property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
@@ -245,6 +257,7 @@ model ContactRequest {
   @@index([propertyId])
   @@index([interesadoId])
   @@index([createdAt])
+  @@index([estado])
   @@map("contact_requests")
 }
 

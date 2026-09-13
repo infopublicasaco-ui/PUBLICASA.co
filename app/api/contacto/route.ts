@@ -1,60 +1,207 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db/prisma";
 
-export async function POST(request: Request) {
-  const body = await request.json().catch(() => null);
-  if (!body || typeof body !== "object") {
-    return NextResponse.json({ error: "Datos inválidos." }, { status: 400 });
+// Validación con Zod
+const contactSchema = z.object({
+  propertyId: z.string().min(1, "Property ID es requerido"),
+  nombre: z.string().min(2, "El nombre debe tener al menos 2 caracteres").max(150),
+  email: z.string().email("El email no es válido"),
+  telefono: z
+    .string()
+    .min(7, "El teléfono debe tener al menos 7 dígitos")
+    .regex(/^[\d\s\-\+\(\)]+$/, "El teléfono solo debe contener números y caracteres válidos")
+    .max(30),
+  mensaje: z.string().max(1000).optional().default(""),
+  consentimiento: z.boolean().refine((val) => val === true, {
+    message: "Debes aceptar los términos y condiciones",
+  }),
+  honeypot: z.string().max(0, "Validación fallida"), // debe estar vacío
+});
+
+type ContactFormData = z.infer<typeof contactSchema>;
+
+// Simple in-memory rate limiting (max 5 solicitudes por IP por hora)
+const requestLog = new Map<string, { count: number; resetTime: number }>();
+
+function checkRateLimit(ip: string): boolean {
+  const now = Date.now();
+  const record = requestLog.get(ip);
+
+  if (!record || now > record.resetTime) {
+    // Nueva hora o primer request
+    requestLog.set(ip, { count: 1, resetTime: now + 3600000 });
+    return true;
   }
 
-  const { propertyId, mensaje, nombre, email, telefono } = body as Record<string, unknown>;
-
-  if (typeof propertyId !== "string" || !propertyId) {
-    return NextResponse.json({ error: "Falta el inmueble." }, { status: 400 });
-  }
-  if (typeof mensaje !== "string" || !mensaje.trim()) {
-    return NextResponse.json({ error: "Escribe un mensaje." }, { status: 400 });
+  if (record.count >= 5) {
+    return false; // Rate limit excedido
   }
 
-  const emailLimpio = typeof email === "string" ? email.trim() : "";
-  const telefonoLimpio = typeof telefono === "string" ? telefono.trim() : "";
-  if (!emailLimpio && !telefonoLimpio) {
+  record.count++;
+  return true;
+}
+
+function getClientIp(request: NextRequest): string {
+  const forwarded = request.headers.get("x-forwarded-for");
+  const ip = forwarded ? forwarded.split(",")[0].trim() : request.ip || "unknown";
+  return ip;
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    const ip = getClientIp(request);
+
+    // Rate limiting por IP
+    if (!checkRateLimit(ip)) {
+      return NextResponse.json(
+        { error: "Demasiadas solicitudes. Intenta más tarde." },
+        { status: 429 }
+      );
+    }
+
+    const body = await request.json();
+
+    // Validación con Zod
+    const parsedData = contactSchema.parse(body);
+
+    // Obtener sesión del usuario autenticado (si existe)
+    const session = await auth();
+    const userId = session?.user?.id;
+
+    // Crear el registro de contacto
+    const contactRequest = await prisma.contactRequest.create({
+      data: {
+        propertyId: parsedData.propertyId,
+        nombre: parsedData.nombre,
+        email: parsedData.email,
+        telefono: parsedData.telefono,
+        mensaje: parsedData.mensaje,
+        consentimientoDatos: parsedData.consentimiento,
+        ipAddress: ip,
+        origen: "formulario_web",
+        interesadoId: userId || null,
+      },
+      include: {
+        property: {
+          select: {
+            id: true,
+            titulo: true,
+            propietarioId: true,
+            propietario: {
+              select: {
+                nombre: true,
+                email: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    // TODO: Enviar correos
+    // 1. Correo al vendedor con los datos del contacto
+    // 2. Correo de confirmación al comprador
+
     return NextResponse.json(
-      { error: "Deja un email o un teléfono para que el propietario pueda responderte." },
-      { status: 400 }
+      {
+        success: true,
+        message: "Solicitud enviada correctamente",
+        contactRequestId: contactRequest.id,
+      },
+      { status: 201 }
+    );
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        { error: error.errors[0]?.message || "Validación fallida" },
+        { status: 400 }
+      );
+    }
+
+    console.error("Error en POST /api/contacto:", error);
+    return NextResponse.json(
+      { error: "Error al procesar la solicitud" },
+      { status: 500 }
     );
   }
+}
 
-  const property = await prisma.property.findUnique({
-    where: { id: propertyId },
-    select: { id: true, estado: true, propietarioId: true },
-  });
-  if (!property) {
-    return NextResponse.json({ error: "Inmueble no encontrado." }, { status: 404 });
-  }
-  if (property.estado !== "ACTIVO") {
+// Endpoint PATCH para actualizar el estado de un contacto
+export async function PATCH(request: NextRequest) {
+  try {
+    const session = await auth();
+    if (!session?.user) {
+      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+    }
+
+    const url = new URL(request.url);
+    const id = url.searchParams.get("id");
+
+    if (!id) {
+      return NextResponse.json(
+        { error: "ID de contacto requerido" },
+        { status: 400 }
+      );
+    }
+
+    const body = await request.json();
+    const { estado } = body;
+
+    if (!estado) {
+      return NextResponse.json(
+        { error: "Estado es requerido" },
+        { status: 400 }
+      );
+    }
+
+    // Verificar que el usuario es el propietario del inmueble
+    const contactRequest = await prisma.contactRequest.findUnique({
+      where: { id },
+      include: {
+        property: {
+          select: { propietarioId: true },
+        },
+      },
+    });
+
+    if (!contactRequest) {
+      return NextResponse.json(
+        { error: "Contacto no encontrado" },
+        { status: 404 }
+      );
+    }
+
+    if (contactRequest.property.propietarioId !== session.user.id) {
+      return NextResponse.json(
+        { error: "No tienes permisos para actualizar este contacto" },
+        { status: 403 }
+      );
+    }
+
+    // Actualizar estado
+    const updatedContactRequest = await prisma.contactRequest.update({
+      where: { id },
+      data: {
+        estado,
+        leida: true,
+      },
+    });
+
     return NextResponse.json(
-      { error: "Este inmueble no está disponible para contacto." },
-      { status: 409 }
+      {
+        success: true,
+        message: "Estado actualizado",
+        contactRequest: updatedContactRequest,
+      },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("Error en PATCH /api/contacto:", error);
+    return NextResponse.json(
+      { error: "Error al procesar la solicitud" },
+      { status: 500 }
     );
   }
-
-  const session = await auth();
-  if (session?.user?.id === property.propietarioId) {
-    return NextResponse.json({ error: "Este inmueble es tuyo." }, { status: 400 });
-  }
-
-  await prisma.contactRequest.create({
-    data: {
-      propertyId,
-      mensaje: mensaje.trim(),
-      nombre: typeof nombre === "string" && nombre.trim() ? nombre.trim() : null,
-      email: emailLimpio || null,
-      telefono: telefonoLimpio || null,
-      interesadoId: session?.user?.id ?? null,
-    },
-  });
-
-  return NextResponse.json({ ok: true });
 }
