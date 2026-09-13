@@ -1,10 +1,11 @@
 import { SocialIcons } from "./SocialIcons";
 
 const LEGAL_LINKS = [
-  { label: "Políticas de Cookies", href: "/legal/cookies" },
+  { label: "Aviso Legal", href: "/legal/aviso-legal" },
   { label: "Términos y Condiciones", href: "/legal/terminos" },
-  { label: "Política de Tratamiento de Datos Personales", href: "/legal/datos-personales" },
-  { label: "Vigilado Superintendencia de Industria y Comercio (SIC)", href: "/legal/sic" },
+  { label: "Política de Datos Personales", href: "/legal/datos-personales" },
+  { label: "Políticas de Cookies", href: "/legal/cookies" },
+  { label: "Recomendaciones", href: "/legal/recomendaciones" },
 ];
 
 export function Footer() {
