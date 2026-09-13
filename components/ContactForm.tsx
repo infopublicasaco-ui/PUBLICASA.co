@@ -1,7 +1,7 @@
 "use client";
 
 import { useSession } from "next-auth/react";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 
 export function ContactForm({
   propertyId,
@@ -19,6 +19,23 @@ export function ContactForm({
   const [enviando, setEnviando] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [enviado, setEnviado] = useState(false);
+  const formRef = useRef<HTMLFormElement>(null);
+
+  useEffect(() => {
+    if (formRef.current) {
+      const inputs = formRef.current.querySelectorAll("input[required], textarea[required]");
+      inputs.forEach((input: Element) => {
+        const htmlInput = input as HTMLInputElement;
+        htmlInput.addEventListener("invalid", (e) => {
+          e.preventDefault();
+          htmlInput.setCustomValidity("Completa este campo");
+        });
+        htmlInput.addEventListener("input", () => {
+          htmlInput.setCustomValidity("");
+        });
+      });
+    }
+  }, []);
 
   const nombreFinal = session?.user?.name ?? nombre;
   const emailFinal = session?.user?.email ?? email;
@@ -74,7 +91,7 @@ export function ContactForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form ref={formRef} onSubmit={handleSubmit} className="space-y-4">
       {/* Nombre y Apellido */}
       {!session?.user && (
         <>
@@ -148,7 +165,7 @@ export function ContactForm({
       <button
         type="submit"
         disabled={enviando}
-        className="w-full rounded-lg bg-brand-blue px-4 py-3 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+        className="w-full rounded-lg bg-brand-green px-4 py-3 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
       >
         <span>✉️</span>
         {enviando ? "Enviando…" : "Contactar"}

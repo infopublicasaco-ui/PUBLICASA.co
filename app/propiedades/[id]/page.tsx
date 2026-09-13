@@ -3,9 +3,13 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { auth } from "@/lib/auth";
-import { getPropertyById } from "@/lib/db/properties";
+import { getPropertyById, getSimilarProperties } from "@/lib/db/properties";
+import { prisma } from "@/lib/db/prisma";
 import { formatCOP, OPERACION_LABEL, TIPO_LABEL } from "@/lib/format";
 import { ContactForm } from "@/components/ContactForm";
+import { PropertyDetailMap } from "@/components/PropertyDetailMap";
+import { SimilarProperties } from "@/components/SimilarProperties";
+import { DirectContactButtons } from "@/components/DirectContactButtons";
 
 export const revalidate = 60;
 
@@ -30,6 +34,13 @@ export default async function PropertyDetailPage({ params }: Props) {
     auth(),
   ]);
   if (!property) notFound();
+
+  const similarProperties = await getSimilarProperties(params.id, {
+    tipo: property.tipo,
+    operacion: property.operacion,
+    ciudad: property.ciudad,
+    limit: 4,
+  });
 
   const esDelUsuario = session?.user?.id === property.propietarioId;
 
@@ -211,14 +222,16 @@ export default async function PropertyDetailPage({ params }: Props) {
             </>
           )}
 
-          <a
-            href={`https://www.google.com/maps?q=${property.latitud},${property.longitud}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-8 inline-block text-sm font-medium text-blue-600 hover:underline"
-          >
-            Ver ubicación en Google Maps →
-          </a>
+          <h2 className="mt-8 text-lg font-semibold text-gray-900">Ubicación</h2>
+          <div className="mt-4 rounded-lg overflow-hidden border border-gray-200 h-80">
+            <PropertyDetailMap
+              latitud={property.latitud}
+              longitud={property.longitud}
+              titulo={property.titulo}
+              ciudad={property.ciudad}
+              barrio={property.barrio}
+            />
+          </div>
         </div>
 
         <aside className="h-fit rounded-xl border border-gray-200 p-5">
@@ -252,31 +265,19 @@ export default async function PropertyDetailPage({ params }: Props) {
 
               <div className="mt-6 border-t border-gray-200 pt-6">
                 <p className="mb-3 text-sm font-medium text-gray-900">También puedes contactar directamente a {property.propietario.nombre}</p>
-                <div className="flex gap-2">
-                  {property.propietario.whatsapp && (
-                    <a
-                      href={`https://wa.me/57${property.propietario.whatsapp.replace(/\D/g, "")}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex-1 rounded-lg bg-green-600 px-3 py-2 text-center text-sm font-medium text-white hover:bg-green-700 flex items-center justify-center gap-1.5"
-                    >
-                      <span>💬</span> WhatsApp
-                    </a>
-                  )}
-                  {property.propietario.telefono && (
-                    <a
-                      href={`tel:${property.propietario.telefono}`}
-                      className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-center text-sm font-medium text-gray-700 hover:bg-gray-50 flex items-center justify-center gap-1.5"
-                    >
-                      <span>📞</span> Llamar
-                    </a>
-                  )}
-                </div>
+                <DirectContactButtons
+                  nombre={property.propietario.nombre}
+                  whatsapp={property.propietario.whatsapp ?? undefined}
+                  telefono={property.propietario.telefono ?? undefined}
+                />
               </div>
             </>
           )}
         </aside>
       </div>
+
+      {/* Similar Properties Section */}
+      <SimilarProperties properties={similarProperties} />
     </main>
   );
 }

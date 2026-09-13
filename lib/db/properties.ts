@@ -52,3 +52,21 @@ export function getPropertyById(id: string) {
     },
   });
 }
+
+export function getSimilarProperties(
+  propertyId: string,
+  { tipo, operacion, ciudad, limit = 4 }: { tipo: PropertyType; operacion: OperationType; ciudad: string; limit?: number }
+) {
+  return prisma.property.findMany({
+    where: {
+      id: { not: propertyId },
+      estado: "ACTIVO",
+      tipo,
+      operacion,
+      ciudad,
+    },
+    include: { fotos: { orderBy: { orden: "asc" } } },
+    orderBy: { createdAt: "desc" },
+    take: limit,
+  });
+}
