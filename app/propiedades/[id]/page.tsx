@@ -234,35 +234,45 @@ export default async function PropertyDetailPage({ params }: Props) {
             </>
           ) : (
             <>
-              <h2 className="text-lg font-semibold text-gray-900">Contactar al propietario</h2>
-              <p className="mt-1 text-sm text-gray-500">{property.propietario.nombre}</p>
-              <div className="mt-4 flex flex-col gap-2">
-                {property.propietario.whatsapp && (
-                  <a
-                    href={`https://wa.me/57${property.propietario.whatsapp.replace(/\D/g, "")}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="rounded-lg bg-green-600 px-4 py-2 text-center text-sm font-medium text-white hover:bg-green-700"
-                  >
-                    WhatsApp
-                  </a>
-                )}
-                {property.propietario.telefono && (
-                  <a
-                    href={`tel:${property.propietario.telefono}`}
-                    className="rounded-lg border border-gray-300 px-4 py-2 text-center text-sm font-medium text-gray-700 hover:bg-gray-50"
-                  >
-                    Llamar
-                  </a>
-                )}
-              </div>
+              <h2 className="text-lg font-semibold text-gray-900">Completa tus datos para habilitar el medio de contacto</h2>
 
               {property.estado === "ACTIVO" && (
-                <div className="mt-5 border-t border-gray-100 pt-5">
-                  <p className="mb-3 text-sm text-gray-500">O envíale un mensaje:</p>
+                <div className="mt-4">
                   <ContactForm propertyId={property.id} tituloInmueble={property.titulo} />
                 </div>
               )}
+
+              {property.estado !== "ACTIVO" && (
+                <div className="mt-4 rounded-lg bg-amber-50 p-3 border border-amber-200">
+                  <p className="text-sm text-amber-900">
+                    Este inmueble no está disponible para contactar en este momento.
+                  </p>
+                </div>
+              )}
+
+              <div className="mt-6 border-t border-gray-200 pt-6">
+                <p className="mb-3 text-sm font-medium text-gray-900">También puedes contactar directamente a {property.propietario.nombre}</p>
+                <div className="flex gap-2">
+                  {property.propietario.whatsapp && (
+                    <a
+                      href={`https://wa.me/57${property.propietario.whatsapp.replace(/\D/g, "")}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-1 rounded-lg bg-green-600 px-3 py-2 text-center text-sm font-medium text-white hover:bg-green-700 flex items-center justify-center gap-1.5"
+                    >
+                      <span>💬</span> WhatsApp
+                    </a>
+                  )}
+                  {property.propietario.telefono && (
+                    <a
+                      href={`tel:${property.propietario.telefono}`}
+                      className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-center text-sm font-medium text-gray-700 hover:bg-gray-50 flex items-center justify-center gap-1.5"
+                    >
+                      <span>📞</span> Llamar
+                    </a>
+                  )}
+                </div>
+              </div>
             </>
           )}
         </aside>

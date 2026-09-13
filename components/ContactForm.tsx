@@ -14,21 +14,30 @@ export function ContactForm({
   const [nombre, setNombre] = useState("");
   const [email, setEmail] = useState("");
   const [telefono, setTelefono] = useState("");
-  const [mensaje, setMensaje] = useState(
-    `Hola, me interesa "${tituloInmueble}". ¿Podemos agendar una visita?`
-  );
+  const [mensaje, setMensaje] = useState(`Hola, vi esta propiedad en Publicasa.co y me gustaría más información.`);
+  const [aceptaTerminos, setAceptaTerminos] = useState(false);
   const [enviando, setEnviando] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [enviado, setEnviado] = useState(false);
 
-  // El usuario logueado no reescribe sus datos: se toman de la sesión.
   const nombreFinal = session?.user?.name ?? nombre;
   const emailFinal = session?.user?.email ?? email;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setEnviando(true);
     setError(null);
+
+    if (!aceptaTerminos) {
+      setError("Debes aceptar los términos y condiciones");
+      return;
+    }
+
+    if (!nombreFinal || !emailFinal || !telefono) {
+      setError("Por favor completa todos los campos");
+      return;
+    }
+
+    setEnviando(true);
 
     const res = await fetch("/api/contacto", {
       method: "POST",
@@ -55,57 +64,94 @@ export function ContactForm({
 
   if (enviado) {
     return (
-      <div className="rounded-lg bg-brand-green/10 p-3">
-        <p className="text-sm font-medium text-gray-900">Mensaje enviado</p>
-        <p className="mt-1 text-sm text-gray-600">
-          El propietario recibió tu solicitud y podrá responderte al contacto que dejaste.
+      <div className="rounded-lg bg-green-50 p-4 border border-green-200">
+        <p className="text-sm font-medium text-green-900">¡Mensaje enviado!</p>
+        <p className="mt-2 text-sm text-green-800">
+          El propietario ha recibido tu solicitud y te contactará pronto.
         </p>
       </div>
     );
   }
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} className="space-y-4">
+      {/* Nombre y Apellido */}
       {!session?.user && (
-        <div className="grid gap-3">
+        <>
           <input
+            type="text"
             value={nombre}
             onChange={(e) => setNombre(e.target.value)}
-            placeholder="Tu nombre"
-            className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-brand-blue focus:outline-none"
+            placeholder="Nombre y Apellido*"
+            required
+            className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-brand-blue focus:outline-none focus:ring-1 focus:ring-brand-blue"
           />
           <input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="Tu email"
-            className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-brand-blue focus:outline-none"
+            placeholder="Email*"
+            required
+            className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-brand-blue focus:outline-none focus:ring-1 focus:ring-brand-blue"
           />
-        </div>
+        </>
       )}
 
-      <input
-        value={telefono}
-        onChange={(e) => setTelefono(e.target.value)}
-        placeholder="Tu teléfono (opcional si dejas email)"
-        className="mt-3 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-brand-blue focus:outline-none"
-      />
+      {/* País + Teléfono */}
+      <div className="flex gap-2">
+        <div className="flex items-center gap-1 rounded-lg border border-gray-300 px-3 py-2.5 bg-white">
+          <span className="text-lg">🇨🇴</span>
+          <span className="text-sm font-medium text-gray-700">+57</span>
+        </div>
+        <input
+          type="tel"
+          value={telefono}
+          onChange={(e) => setTelefono(e.target.value)}
+          placeholder="Teléfono*"
+          required
+          className="flex-1 rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-brand-blue focus:outline-none focus:ring-1 focus:ring-brand-blue"
+        />
+      </div>
 
+      {/* Mensaje */}
       <textarea
         value={mensaje}
         onChange={(e) => setMensaje(e.target.value)}
+        placeholder="Tu mensaje..."
         rows={4}
-        className="mt-3 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-brand-blue focus:outline-none"
+        className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-brand-blue focus:outline-none focus:ring-1 focus:ring-brand-blue"
       />
 
-      {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
+      {/* Términos y Condiciones */}
+      <label className="flex items-start gap-2.5">
+        <input
+          type="checkbox"
+          checked={aceptaTerminos}
+          onChange={(e) => setAceptaTerminos(e.target.checked)}
+          className="mt-1 h-4 w-4 rounded border-gray-300 text-brand-blue focus:ring-brand-blue cursor-pointer"
+        />
+        <span className="text-xs text-gray-600">
+          Acepto los{" "}
+          <a href="/legal/terminos" className="text-brand-blue font-medium hover:underline">
+            Términos y condiciones
+          </a>{" "}
+          y la{" "}
+          <a href="/legal/datos-personales" className="text-brand-blue font-medium hover:underline">
+            Política de privacidad
+          </a>
+        </span>
+      </label>
 
+      {error && <p className="text-sm text-red-600 font-medium">{error}</p>}
+
+      {/* Botón Contactar */}
       <button
         type="submit"
         disabled={enviando}
-        className="mt-3 w-full rounded-lg bg-brand-blue px-4 py-2.5 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50"
+        className="w-full rounded-lg bg-brand-blue px-4 py-3 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
       >
-        {enviando ? "Enviando…" : "Enviar mensaje"}
+        <span>✉️</span>
+        {enviando ? "Enviando…" : "Contactar"}
       </button>
     </form>
   );

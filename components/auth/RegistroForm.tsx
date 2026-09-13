@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
+import { GoogleButton } from "./GoogleButton";
 
 type Rol = "COMPRADOR" | "PROPIETARIO";
 
@@ -131,22 +132,7 @@ export function RegistroForm({ googleEnabled }: { googleEnabled: boolean }) {
         {loading ? "Creando cuenta..." : "Crear cuenta"}
       </button>
 
-      {googleEnabled && (
-        <>
-          <div className="flex items-center gap-2 text-xs text-gray-400">
-            <div className="h-px flex-1 bg-gray-200" />
-            o
-            <div className="h-px flex-1 bg-gray-200" />
-          </div>
-          <button
-            type="button"
-            onClick={() => signIn("google", { callbackUrl: "/perfil" })}
-            className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
-          >
-            Continuar con Google
-          </button>
-        </>
-      )}
+      {googleEnabled && <GoogleButton />}
     </form>
   );
 }
