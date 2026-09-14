@@ -16,6 +16,7 @@ type InmueblesProps = {
     q?: string;
     precioMin?: string;
     precioMax?: string;
+    sortBy?: string;
   };
 };
 
@@ -26,6 +27,7 @@ export default async function InmueblesPage({ searchParams }: InmueblesProps) {
     q: searchParams.q,
     precioMin: searchParams.precioMin ? Number(searchParams.precioMin) : undefined,
     precioMax: searchParams.precioMax ? Number(searchParams.precioMax) : undefined,
+    sortBy: searchParams.sortBy as any,
   });
 
   const mapProperties: MapProperty[] = properties.map((property) => {

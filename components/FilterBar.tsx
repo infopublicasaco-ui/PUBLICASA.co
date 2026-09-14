@@ -12,6 +12,16 @@ const PRESUPUESTOS = [
   { label: "Más de $1.500M", min: 1_500_000_000, max: undefined },
 ];
 
+const SORT_OPTIONS = [
+  { value: "", label: "Ordenar por" },
+  { value: "recientes", label: "Más recientes" },
+  { value: "antiguos", label: "Más antiguos" },
+  { value: "precio-asc", label: "Menor precio" },
+  { value: "precio-desc", label: "Mayor precio" },
+  { value: "area-asc", label: "Menor m²" },
+  { value: "area-desc", label: "Mayor m²" },
+];
+
 export function FilterBar() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -20,6 +30,7 @@ export function FilterBar() {
   const operacion = searchParams.get("operacion") ?? "VENTA";
   const tipo = searchParams.get("tipo") ?? "";
   const presupuestoIndex = Number(searchParams.get("presupuesto") ?? 0);
+  const sortBy = searchParams.get("sortBy") ?? "";
 
   function updateParams(updates: Record<string, string | undefined>) {
     const params = new URLSearchParams(searchParams.toString());
@@ -96,6 +107,18 @@ export function FilterBar() {
           {PRESUPUESTOS.map((preset, idx) => (
             <option key={preset.label} value={idx}>
               {preset.label}
+            </option>
+          ))}
+        </select>
+
+        <select
+          value={sortBy}
+          onChange={(e) => updateParams({ sortBy: e.target.value || undefined })}
+          className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-gray-500 focus:outline-none bg-white"
+        >
+          {SORT_OPTIONS.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
             </option>
           ))}
         </select>

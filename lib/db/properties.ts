@@ -7,6 +7,7 @@ export type PropertyFilters = {
   q?: string; // busca en ciudad y barrio
   precioMin?: number;
   precioMax?: number;
+  sortBy?: "precio-asc" | "precio-desc" | "area-asc" | "area-desc" | "recientes" | "antiguos";
 };
 
 export function getFilteredProperties(filters: PropertyFilters = {}) {
@@ -27,10 +28,18 @@ export function getFilteredProperties(filters: PropertyFilters = {}) {
     };
   }
 
+  const orderBy: Prisma.PropertyOrderByWithRelationInput =
+    filters.sortBy === "precio-asc" ? { precio: "asc" }
+    : filters.sortBy === "precio-desc" ? { precio: "desc" }
+    : filters.sortBy === "area-asc" ? { areaPrivadaM2: "asc" }
+    : filters.sortBy === "area-desc" ? { areaPrivadaM2: "desc" }
+    : filters.sortBy === "antiguos" ? { createdAt: "asc" }
+    : { createdAt: "desc" };
+
   return prisma.property.findMany({
     where,
     include: { fotos: { orderBy: { orden: "asc" } } },
-    orderBy: { createdAt: "desc" },
+    orderBy,
   });
 }
 
