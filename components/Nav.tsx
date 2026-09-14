@@ -4,7 +4,7 @@ import { NavClient } from "./NavClient";
 const NAV_LINKS = [
   { href: "/noticias", label: "Noticias" },
   { href: "/inmuebles?operacion=VENTA", label: "Comprar" },
-  { href: "/inmuebles?operacion=ARRIENDO", label: "Mejor (Arriendo)" },
+  { href: "/inmuebles?operacion=ARRIENDO", label: "Arriendo" },
   { href: "/publicar", label: "Publicar" },
 ];
 
