@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { auth } from "@/lib/auth";
@@ -7,9 +6,10 @@ import { getPropertyById, getSimilarProperties } from "@/lib/db/properties";
 import { prisma } from "@/lib/db/prisma";
 import { formatCOP, OPERACION_LABEL, TIPO_LABEL } from "@/lib/format";
 import { ContactForm } from "@/components/ContactForm";
+import { PropertyGallery } from "@/components/PropertyGallery";
+import { SellerContactInfo } from "@/components/SellerContactInfo";
 import { PropertyDetailMap } from "@/components/PropertyDetailMap";
 import { SimilarProperties } from "@/components/SimilarProperties";
-import { DirectContactButtons } from "@/components/DirectContactButtons";
 
 export const revalidate = 60;
 
@@ -45,7 +45,17 @@ export default async function PropertyDetailPage({ params }: Props) {
   const esDelUsuario = session?.user?.id === property.propietarioId;
 
   const portada = property.fotos.find((f) => f.esPortada) ?? property.fotos[0];
-  const restoFotos = property.fotos.filter((f) => f.id !== portada?.id);
+  const fotosOrdenadas = portada
+    ? [portada, ...property.fotos.filter((f) => f.id !== portada.id)]
+    : property.fotos;
+
+  const specsLabel = [
+    property.habitaciones != null && `${property.habitaciones} Habs.`,
+    property.banos != null && `${property.banos} Baño${property.banos === 1 ? "" : "s"}`,
+    property.areaConstruidaM2 != null && `${property.areaConstruidaM2} m²`,
+  ]
+    .filter((v): v is string => Boolean(v))
+    .join(" · ");
 
   const caracteristicas = [
     property.habitaciones != null && `${property.habitaciones} habitaciones`,
@@ -133,27 +143,16 @@ export default async function PropertyDetailPage({ params }: Props) {
         </p>
       </div>
 
-      {portada && (
-        <div className="mb-6 grid grid-cols-4 gap-2">
-          <div className="relative col-span-4 h-80 w-full overflow-hidden rounded-xl sm:col-span-3">
-            <Image
-              src={portada.url}
-              alt={property.titulo}
-              fill
-              sizes="(min-width: 640px) 75vw, 100vw"
-              className="object-cover"
-              priority
-            />
-          </div>
-          <div className="col-span-4 grid grid-cols-4 gap-2 sm:col-span-1 sm:grid-cols-1">
-            {restoFotos.slice(0, 3).map((foto) => (
-              <div key={foto.id} className="relative h-20 w-full overflow-hidden rounded-lg sm:h-24">
-                <Image src={foto.url} alt="" fill sizes="200px" className="object-cover" />
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+      <PropertyGallery
+        fotos={fotosOrdenadas}
+        titulo={property.titulo}
+        precioLabel={formatCOP(property.precio.toNumber())}
+        specsLabel={specsLabel}
+        ubicacionLabel={`${property.barrio}, ${property.ciudad}`}
+        propertyId={property.id}
+        vendedorNombre={property.propietario.nombre}
+        vendedorImagen={property.propietario.image}
+      />
 
       <div className="grid grid-cols-1 gap-10 lg:grid-cols-3">
         <div className="lg:col-span-2">
@@ -264,9 +263,9 @@ export default async function PropertyDetailPage({ params }: Props) {
               )}
 
               <div className="mt-6 border-t border-gray-200 pt-6">
-                <p className="mb-3 text-sm font-medium text-gray-900">También puedes contactar directamente a {property.propietario.nombre}</p>
-                <DirectContactButtons
+                <SellerContactInfo
                   nombre={property.propietario.nombre}
+                  imageUrl={property.propietario.image}
                   whatsapp={property.propietario.whatsapp ?? undefined}
                   telefono={property.propietario.telefono ?? undefined}
                 />

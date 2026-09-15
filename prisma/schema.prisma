@@ -112,6 +112,16 @@ model VerificationToken {
   @@map("verification_tokens")
 }
 
+model PasswordResetToken {
+  token     String   @unique
+  email     String
+  expires   DateTime
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([email])
+  @@map("password_reset_tokens")
+}
+
 // ---------------------------------------------------------------------------
 // Property
 // ---------------------------------------------------------------------------

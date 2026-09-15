@@ -110,9 +110,30 @@ async function main() {
       propietarioId: camila.id,
       fotos: {
         create: [
-          { url: "https://picsum.photos/seed/publicasa-apto-chapinero-1/1200/800", orden: 0, esPortada: true },
-          { url: "https://picsum.photos/seed/publicasa-apto-chapinero-2/1200/800", orden: 1 },
-          { url: "https://picsum.photos/seed/publicasa-apto-chapinero-3/1200/800", orden: 2 },
+          // Fotos de prototipo (Unsplash, temática inmobiliaria) para probar la
+          // galería con lightbox con más de 4 imágenes. Reemplazar por fotos
+          // reales del inmueble cuando se desactive el seed de demo.
+          {
+            url: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1200&q=80&auto=format&fit=crop",
+            orden: 0,
+            esPortada: true,
+          },
+          {
+            url: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=1200&q=80&auto=format&fit=crop",
+            orden: 1,
+          },
+          {
+            url: "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=1200&q=80&auto=format&fit=crop",
+            orden: 2,
+          },
+          {
+            url: "https://images.unsplash.com/photo-1600585152915-d208bec867a1?w=1200&q=80&auto=format&fit=crop",
+            orden: 3,
+          },
+          {
+            url: "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=1200&q=80&auto=format&fit=crop",
+            orden: 4,
+          },
         ],
       },
     },

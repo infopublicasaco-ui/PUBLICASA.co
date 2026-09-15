@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
@@ -45,7 +46,12 @@ export function LoginForm({ googleEnabled }: { googleEnabled: boolean }) {
       </div>
 
       <div>
-        <label className="text-sm font-medium text-gray-700">Contraseña</label>
+        <div className="flex items-center justify-between">
+          <label className="text-sm font-medium text-gray-700">Contraseña</label>
+          <Link href="/forgot-password" className="text-xs text-brand-blue hover:underline">
+            ¿Olvidaste tu contraseña?
+          </Link>
+        </div>
         <input
           type="password"
           required

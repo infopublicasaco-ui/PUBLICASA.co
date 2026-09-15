@@ -12,6 +12,7 @@ const config: Config = {
         brand: {
           blue: "#466cb4",
           blueDark: "#35538f",
+          blueLight: "#c4d5f5",
           green: "#56c2b5",
           orange: "#e0954f",
           purple: "#7a6fd0",

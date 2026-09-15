@@ -85,6 +85,7 @@ export default async function PerfilPage() {
           email={usuario.email}
           rol={rol}
           telefono={usuario.telefono}
+          imagen={usuario.image}
         />
       </div>
 
