@@ -30,7 +30,7 @@ Los costos de entrada al mercado inmobiliario han alcanzado máximos históricos
 
 Las iniciativas gubernamentales de subsidio y crédito blando han tenido alcance limitado. Se estima que el déficit de vivienda en Colombia supera los 1,2 millones de unidades.`,
     stat: { value: "57", label: "meses de ingreso bruto para cuota inicial promedio" },
-    author: "Equipo PublicAsa",
+    author: "PUBLICASA.co",
     date: "10 Sep 2025",
     readTime: "6 min lectura",
   },
@@ -56,7 +56,7 @@ La Sabana de Bogotá ha experimentado una transformación acelerada en los últi
 
 El Regiotram de Occidente, cuando entre en operación, puede acentuar estos movimientos o crear nuevas centralidades en municipios actualmente dormitorio.`,
     stat: { value: "+8%", label: "valorización real anual corredor norte (2021–2024)" },
-    author: "Equipo PublicAsa",
+    author: "PUBLICASA.co",
     date: "28 Ago 2025",
     readTime: "8 min lectura",
   },
@@ -98,7 +98,7 @@ Sin embargo, la inflación permanece como factor limitante. Mientras se mantenga
 
 **Conclusión:** El abaratamiento de crédito definitivamente hace la vivienda más accesible, pero no por sí solo resuelve la ecuación económica.`,
     stat: { value: "−$600k", label: "menos de cuota mensual por cada $200 M financiados" },
-    author: "Equipo PublicAsa",
+    author: "PUBLICASA.co",
     date: "15 Jul 2025",
     readTime: "9 min lectura",
   },

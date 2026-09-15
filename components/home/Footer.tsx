@@ -16,7 +16,7 @@ export function Footer() {
           <div className="flex flex-wrap items-center gap-x-8 gap-y-2 text-sm">
             <span>Cel: (+57) 310 2416 984</span>
             <span>Tel: 601 8841816</span>
-            <span>INFO@publicasa.co</span>
+            <span>info@publicasa.co</span>
             <span>Canales de preferencia</span>
             <span>Preguntas frecuentes</span>
           </div>
