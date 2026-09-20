@@ -23,5 +23,5 @@ export const TIPO_LABEL: Record<string, string> = {
   CASA: "Casa",
   APARTAMENTO: "Apartamento",
   LOTE: "Lote",
-  LOCAL: "Local",
+  LOCAL: "Local/Oficina",
 };

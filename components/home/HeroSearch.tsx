@@ -7,6 +7,7 @@ const TIPOS = [
   { value: "CASA", label: "Casas" },
   { value: "APARTAMENTO", label: "Apartamentos" },
   { value: "LOTE", label: "Lotes" },
+  { value: "LOCAL", label: "Local/Oficina" },
 ];
 
 export function HeroSearch() {
