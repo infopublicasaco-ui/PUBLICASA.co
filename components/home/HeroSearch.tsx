@@ -13,7 +13,7 @@ const TIPOS = [
 export function HeroSearch() {
   const router = useRouter();
   const [q, setQ] = useState("");
-  const [operacion, setOperacion] = useState<"VENTA" | "ARRIENDO">("VENTA");
+  const [operacion, setOperacion] = useState<"VENTA" | "ARRIENDO" | "AMBOS">("VENTA");
   const [tipos, setTipos] = useState<string[]>([]);
 
   function toggleTipo(value: string) {
@@ -26,7 +26,7 @@ export function HeroSearch() {
     e.preventDefault();
     const params = new URLSearchParams();
     if (q) params.set("q", q);
-    params.set("operacion", operacion);
+    if (operacion !== "AMBOS") params.set("operacion", operacion);
     if (tipos.length > 0) params.set("tipo", tipos.join(","));
     router.push(`/inmuebles?${params.toString()}`);
   }
@@ -46,11 +46,12 @@ export function HeroSearch() {
         <div className="hidden h-8 w-px shrink-0 bg-gray-300 sm:block" />
         <select
           value={operacion}
-          onChange={(e) => setOperacion(e.target.value as "VENTA" | "ARRIENDO")}
+          onChange={(e) => setOperacion(e.target.value as "VENTA" | "ARRIENDO" | "AMBOS")}
           className="shrink-0 bg-transparent px-4 py-3 font-semibold text-gray-800 focus:outline-none"
         >
           <option value="VENTA">Comprar</option>
           <option value="ARRIENDO">Arrendar</option>
+          <option value="AMBOS">Ambos</option>
         </select>
         <button
           type="submit"
