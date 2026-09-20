@@ -23,7 +23,9 @@ type InmueblesProps = {
 export default async function InmueblesPage({ searchParams }: InmueblesProps) {
   const properties = await getFilteredProperties({
     operacion: searchParams.operacion as OperationType | undefined,
-    tipo: searchParams.tipo as PropertyType | undefined,
+    tipo: searchParams.tipo
+      ? (searchParams.tipo.split(",") as PropertyType[])
+      : undefined,
     q: searchParams.q,
     precioMin: searchParams.precioMin ? Number(searchParams.precioMin) : undefined,
     precioMax: searchParams.precioMax ? Number(searchParams.precioMax) : undefined,

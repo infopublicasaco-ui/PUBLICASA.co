@@ -3,7 +3,7 @@ import { prisma } from "./prisma";
 
 export type PropertyFilters = {
   operacion?: OperationType;
-  tipo?: PropertyType;
+  tipo?: PropertyType[];
   q?: string; // busca en ciudad y barrio
   precioMin?: number;
   precioMax?: number;
@@ -14,7 +14,9 @@ export function getFilteredProperties(filters: PropertyFilters = {}) {
   const where: Prisma.PropertyWhereInput = { estado: "ACTIVO" };
 
   if (filters.operacion) where.operacion = filters.operacion;
-  if (filters.tipo) where.tipo = filters.tipo;
+  if (filters.tipo && filters.tipo.length > 0) {
+    where.tipo = filters.tipo.length === 1 ? filters.tipo[0] : { in: filters.tipo };
+  }
   if (filters.q) {
     where.OR = [
       { ciudad: { contains: filters.q, mode: "insensitive" } },

@@ -14,14 +14,20 @@ export function HeroSearch() {
   const router = useRouter();
   const [q, setQ] = useState("");
   const [operacion, setOperacion] = useState<"VENTA" | "ARRIENDO">("VENTA");
-  const [tipo, setTipo] = useState<string | null>(null);
+  const [tipos, setTipos] = useState<string[]>([]);
+
+  function toggleTipo(value: string) {
+    setTipos((prev) =>
+      prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value]
+    );
+  }
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     const params = new URLSearchParams();
     if (q) params.set("q", q);
     params.set("operacion", operacion);
-    if (tipo) params.set("tipo", tipo);
+    if (tipos.length > 0) params.set("tipo", tipos.join(","));
     router.push(`/inmuebles?${params.toString()}`);
   }
 
@@ -56,12 +62,13 @@ export function HeroSearch() {
 
       <div className="mt-4 flex flex-wrap gap-3">
         {TIPOS.map((t) => {
-          const active = tipo === t.value;
+          const active = tipos.includes(t.value);
           return (
             <button
               key={t.value}
               type="button"
-              onClick={() => setTipo(active ? null : t.value)}
+              aria-pressed={active}
+              onClick={() => toggleTipo(t.value)}
               className={`rounded-lg px-5 py-2 text-sm font-bold uppercase tracking-wide ${
                 active
                   ? "bg-brand-green text-white"
