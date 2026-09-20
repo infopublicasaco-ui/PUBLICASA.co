@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "NODE_EXTRA_CA_CERTS=/etc/ssl/cert.pem next dev",
     "build": "next build",
+    "postinstall": "prisma generate",
     "start": "next start",
     "lint": "next lint",
     "db:seed": "prisma db seed",
