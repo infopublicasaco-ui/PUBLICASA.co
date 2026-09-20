@@ -5,6 +5,7 @@ const nextConfig = {
       { protocol: "https", hostname: "picsum.photos" },
       { protocol: "https", hostname: "plus.unsplash.com" },
       { protocol: "https", hostname: "images.unsplash.com" },
+      { protocol: "https", hostname: "hcovrvurpsjdejqkbfmm.supabase.co" },
     ],
   },
 };

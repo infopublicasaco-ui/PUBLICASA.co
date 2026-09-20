@@ -17,7 +17,7 @@ export function PublishCta() {
           <div className="absolute inset-4 rounded-3xl bg-teal-50" />
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/images/publish-man.jpg"
+            src="/images/publish-man.png"
             alt="Propietario satisfecho tras publicar su inmueble en PUBLICASA.co"
             className="absolute inset-0 h-full w-full object-contain"
           />

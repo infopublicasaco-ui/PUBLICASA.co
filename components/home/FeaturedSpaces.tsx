@@ -4,7 +4,7 @@ export function FeaturedSpaces() {
       <div className="relative aspect-[4/3] w-full overflow-hidden rounded-xl bg-gray-200">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="/images/hero-couple.jpg"
+          src="/images/hero-couple.png"
           alt="Pareja revisando inmuebles destacados desde el sofá"
           className="h-full w-full object-cover"
         />
