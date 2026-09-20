@@ -1,6 +1,6 @@
 import { PrismaClient, Role, PropertyType, OperationType, PropertyStatus } from "@prisma/client";
 import { Decimal } from "@prisma/client/runtime/library";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 
