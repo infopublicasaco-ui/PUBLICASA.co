@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db/prisma";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import { DashboardIcon, MensajeIcon, CasaIcon } from "@/components/icons/SidebarIcons";
 
 export default async function PerfilLayout({
   children,
@@ -82,19 +83,19 @@ export default async function PerfilLayout({
             href="/perfil"
             className="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-brand-green/5 transition font-medium text-sm"
           >
-            <span>📊</span> Dashboard
+            <DashboardIcon /> Dashboard
           </Link>
           <Link
             href="/perfil/mensajes"
             className="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-brand-green/5 transition font-medium text-sm"
           >
-            <span>💬</span> Mis Mensajes
+            <MensajeIcon /> Mis Mensajes
           </Link>
           <Link
             href="/perfil/propiedades"
             className="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-brand-green/5 transition font-medium text-sm"
           >
-            <span>🏠</span> Mis Propiedades
+            <CasaIcon /> Mis Propiedades
           </Link>
           <Link
             href="/publicar"

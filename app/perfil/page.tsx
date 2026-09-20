@@ -37,7 +37,7 @@ export default async function PerfilPage() {
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Bienvenido, {user.nombre}!</h1>
+        <h1 className="text-3xl font-bold text-gray-900">Hola, {user.nombre}</h1>
         <p className="text-gray-600 mt-2">Gestiona tus propiedades, mensajes y solicitudes desde aquí</p>
       </div>
 
