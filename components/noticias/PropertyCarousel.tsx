@@ -3,6 +3,7 @@
 import { useState, useRef } from "react";
 import Link from "next/link";
 import type { Property, PropertyPhoto } from "@prisma/client";
+import { formatCOP } from "@/lib/format";
 
 type PropertyWithPhotos = Property & { fotos: PropertyPhoto[] };
 
@@ -94,7 +95,7 @@ export function PropertyCarousel({ properties }: { properties: PropertyWithPhoto
               {/* Info */}
               <div className="p-4 space-y-2">
                 <div className="text-xl font-bold text-gray-900">
-                  ${property.precio.toLocaleString("es-CO")}
+                  {formatCOP(Number(property.precio))}
                 </div>
                 <div className="text-sm text-gray-600 flex items-center gap-1">
                   📍 {property.barrio}, {property.ciudad}
