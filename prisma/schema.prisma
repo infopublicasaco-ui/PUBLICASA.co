@@ -8,10 +8,6 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-// ---------------------------------------------------------------------------
-// Enums
-// ---------------------------------------------------------------------------
-
 enum Role {
   PROPIETARIO
   COMPRADOR
@@ -39,16 +35,12 @@ enum PropertyStatus {
   ARRENDADO
 }
 
-// ---------------------------------------------------------------------------
-// User
-// ---------------------------------------------------------------------------
-
 model User {
   id            String    @id @default(cuid())
   email         String    @unique
-  emailVerified DateTime? @map("email_verified") // establecido por el proveedor OAuth (Google)
-  image         String? // foto de perfil (Google) o futura carga propia
-  password      String? // hash bcrypt; null si el usuario solo usa Google
+  emailVerified DateTime? @map("email_verified")
+  image         String?
+  password      String?
   nombre        String
   telefono      String?
   whatsapp      String?
@@ -59,18 +51,15 @@ model User {
   propiedades         Property[]       @relation("PropietarioProperties")
   solicitudesContacto ContactRequest[] @relation("InteresadoContactRequests")
   busquedasGuardadas  SavedSearch[]
+  
+  mensajesEnviados    Message[]        @relation("MensajesEnviados")
+  mensajesRecibidos   Message[]        @relation("MensajesRecibidos")
 
   accounts Account[]
   sessions Session[]
 
   @@map("users")
 }
-
-// ---------------------------------------------------------------------------
-// NextAuth (Auth.js) — Account/Session/VerificationToken requeridos por el
-// PrismaAdapter para login con Google. La sesión usa estrategia JWT (no la
-// tabla Session), pero se mantiene por compatibilidad con el adapter estándar.
-// ---------------------------------------------------------------------------
 
 model Account {
   id                String  @id @default(cuid())
@@ -122,23 +111,15 @@ model PasswordResetToken {
   @@map("password_reset_tokens")
 }
 
-// ---------------------------------------------------------------------------
-// Property
-// ---------------------------------------------------------------------------
-
 model Property {
   id          String        @id @default(cuid())
   titulo      String
   descripcion String        @db.Text
   tipo        PropertyType
   operacion   OperationType
-
-  // Precio
-  precio         Decimal  @db.Decimal(14, 2)
-  precioSugerido Decimal? @db.Decimal(14, 2) @map("precio_sugerido") // reservado para futuro agente de pricing
-
-  // Características físicas (nullable: no todos los tipos de inmueble aplican,
-  // ej. un lote no tiene habitaciones/baños/parqueaderos)
+  precio      Decimal       @db.Decimal(14, 2)
+  precioSugerido Decimal?   @db.Decimal(14, 2) @map("precio_sugerido")
+  
   areaConstruidaM2 Float? @map("area_construida_m2")
   areaPrivadaM2    Float? @map("area_privada_m2")
   habitaciones     Int?
@@ -148,8 +129,7 @@ model Property {
   antiguedadAnios  Int?   @map("antiguedad_anios")
   piso             Int?
   totalPisos       Int?   @map("total_pisos")
-
-  // Características adicionales booleanas
+  
   ascensor            Boolean @default(false)
   amoblado            Boolean @default(false)
   tieneBalcon         Boolean @default(false) @map("tiene_balcon")
@@ -158,11 +138,9 @@ model Property {
   tieneEstudio        Boolean @default(false) @map("tiene_estudio")
   tieneDeposito       Boolean @default(false) @map("tiene_deposito")
   tieneZonaLavanderia Boolean @default(false) @map("tiene_zona_lavanderia")
-
-  // Información económica adicional
+  
   administracion Decimal? @db.Decimal(12, 2)
-
-  // Ubicación (clave para mapa, búsqueda por zona y futuro score de ubicación)
+  
   ciudad       String
   departamento String?
   localidad    String?
@@ -170,30 +148,21 @@ model Property {
   direccion    String
   latitud      Float
   longitud     Float
-
-  // JSON flexibles: permiten ampliar información sin migrar el schema.
-  // caracteristicasSector, ej: { "colegios_cercanos": true, "seguridad": "alta", ... }
-  // caracteristicasAdicionales, ej: { "piscina": true, "vigilancia": true, ... }
+  
   caracteristicasSector      Json? @map("caracteristicas_sector")
   caracteristicasAdicionales Json? @map("caracteristicas_adicionales")
-
-  // Análisis de fotos con IA (Claude Vision)
-  analisisVisual Json? @map("analisis_visual")
-
-  estado PropertyStatus @default(PENDIENTE_REVISION)
-
-  // Motivo que el admin dejó al rechazar; se le muestra al propietario en
-  // /perfil para que sepa qué corregir. Null salvo en estado RECHAZADO.
-  motivoRechazo String? @db.Text @map("motivo_rechazo")
-
-  // Reservado para futuros agentes de IA (análisis de ubicación / pricing)
-  scoreUbicacion Float? @map("score_ubicacion")
+  analisisVisual             Json? @map("analisis_visual")
+  
+  estado           PropertyStatus @default(PENDIENTE_REVISION)
+  motivoRechazo    String? @db.Text @map("motivo_rechazo")
+  scoreUbicacion   Float? @map("score_ubicacion")
 
   propietarioId String
   propietario   User   @relation("PropietarioProperties", fields: [propietarioId], references: [id])
 
   fotos               PropertyPhoto[]
   solicitudesContacto ContactRequest[]
+  mensajes            Message[]
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -210,10 +179,6 @@ model Property {
   @@map("properties")
 }
 
-// ---------------------------------------------------------------------------
-// PropertyPhoto
-// ---------------------------------------------------------------------------
-
 model PropertyPhoto {
   id        String  @id @default(cuid())
   url       String
@@ -229,10 +194,6 @@ model PropertyPhoto {
   @@map("property_photos")
 }
 
-// ---------------------------------------------------------------------------
-// ContactRequest
-// ---------------------------------------------------------------------------
-
 enum ContactRequestStatus {
   NUEVO
   CONTACTADO
@@ -244,12 +205,12 @@ enum ContactRequestStatus {
 model ContactRequest {
   id       String  @id @default(cuid())
   mensaje  String  @db.Text
-  nombre   String  @default("") // lo deja el visitante no registrado; si hay interesadoId se usa su nombre
+  nombre   String  @default("")
   telefono String
   email    String
 
-  leida Boolean @default(false) // el propietario la marca al revisarla en /perfil
-  estado  ContactRequestStatus @default(NUEVO)
+  leida Boolean @default(false)
+  estado ContactRequestStatus @default(NUEVO)
   origen  String @default("formulario_web")
   ipAddress String? @map("ip_address")
   consentimientoDatos Boolean @default(true) @map("consentimiento_datos")
@@ -257,8 +218,6 @@ model ContactRequest {
   propertyId String
   property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
 
-  // El interesado puede ser un usuario registrado (interesadoId) o un visitante
-  // no registrado que solo deja email/telefono.
   interesadoId String?
   interesado   User?   @relation("InteresadoContactRequests", fields: [interesadoId], references: [id], onDelete: SetNull)
 
@@ -271,14 +230,10 @@ model ContactRequest {
   @@map("contact_requests")
 }
 
-// ---------------------------------------------------------------------------
-// SavedSearch
-// ---------------------------------------------------------------------------
-
 model SavedSearch {
   id      String  @id @default(cuid())
   nombre  String?
-  filtros Json // ej: { "operacion": "VENTA", "ciudad": "Bogotá", "precioMax": 500000000 }
+  filtros Json
 
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -288,4 +243,28 @@ model SavedSearch {
 
   @@index([userId])
   @@map("saved_searches")
+}
+
+model Message {
+  id            String   @id @default(cuid())
+  contenido     String   @db.Text
+  
+  remitente_id  String
+  remitente     User     @relation("MensajesEnviados", fields: [remitente_id], references: [id], onDelete: Cascade)
+  
+  destinatario_id String
+  destinatario  User     @relation("MensajesRecibidos", fields: [destinatario_id], references: [id], onDelete: Cascade)
+  
+  property_id   String?
+  property      Property? @relation(fields: [property_id], references: [id], onDelete: SetNull)
+  
+  leido         Boolean  @default(false)
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  @@index([remitente_id])
+  @@index([destinatario_id])
+  @@index([property_id])
+  @@index([createdAt])
+  @@map("messages")
 }
