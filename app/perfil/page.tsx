@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db/prisma";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import { MensajeIcon, CasaIcon } from "@/components/icons/SidebarIcons";
 
 export const metadata = {
   title: "Mi Perfil | PUBLICASA.co",
@@ -47,7 +48,7 @@ export default async function PerfilPage() {
           href="/perfil/mensajes"
           className="p-6 bg-white rounded-lg border border-gray-200 hover:border-brand-green hover:shadow-lg transition"
         >
-          <div className="text-3xl mb-2">💬</div>
+          <MensajeIcon className="h-8 w-8 mb-2" />
           <h3 className="font-bold text-gray-900">Mis Mensajes</h3>
           <p className="text-sm text-gray-600 mt-1">Comunícate con compradores y arrendatarios</p>
         </Link>
@@ -65,7 +66,7 @@ export default async function PerfilPage() {
           href="/perfil/propiedades"
           className="p-6 bg-white rounded-lg border border-gray-200 hover:border-brand-green hover:shadow-lg transition"
         >
-          <div className="text-3xl mb-2">🏠</div>
+          <CasaIcon className="h-8 w-8 mb-2" />
           <h3 className="font-bold text-gray-900">Mis Propiedades</h3>
           <p className="text-sm text-gray-600 mt-1">Ver y editar todas tus propiedades</p>
         </Link>
