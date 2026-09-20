@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import type { Property, PropertyPhoto } from "@prisma/client";
+import { PhotoUploader } from "@/components/shared/PhotoUploader";
 
 type Tipo = "CASA" | "APARTAMENTO" | "LOTE" | "LOCAL";
 type Operacion = "VENTA" | "ARRIENDO";
@@ -106,7 +107,9 @@ export function EditarForm({ propiedad }: { propiedad: Property & { fotos: Prope
     (propiedad.caracteristicasAdicionales as Record<string, boolean>) || {}
   );
 
-  const [fotosTexto, setFotosTexto] = useState(propiedad.fotos.map((f) => f.url).join("\n"));
+  const [fotos, setFotos] = useState<string[]>(
+    [...propiedad.fotos].sort((a, b) => a.orden - b.orden).map((f) => f.url)
+  );
 
   const esLote = tipo === "LOTE";
 
@@ -122,11 +125,6 @@ export function EditarForm({ propiedad }: { propiedad: Property & { fotos: Prope
     }
 
     setLoading(true);
-
-    const fotos = fotosTexto
-      .split("\n")
-      .map((u) => u.trim())
-      .filter(Boolean);
 
     const sectorEntries = Object.entries(sector).filter(([, v]) => v);
     const caracteristicasSector =
@@ -530,19 +528,7 @@ export function EditarForm({ propiedad }: { propiedad: Property & { fotos: Prope
       <fieldset className="flex flex-col gap-4">
         <legend className="text-lg font-semibold text-gray-900">Fotos</legend>
 
-        <div>
-          <label className={labelClass}>URLs de fotos (una por línea)</label>
-          <textarea
-            rows={4}
-            value={fotosTexto}
-            onChange={(e) => setFotosTexto(e.target.value)}
-            className={inputClass}
-            placeholder="https://ejemplo.com/foto1.jpg&#10;https://ejemplo.com/foto2.jpg"
-          />
-          <p className="mt-2 text-xs text-gray-500">
-            Pega las URLs directas a las fotos. En el futuro podrás subirlas directamente desde tu dispositivo.
-          </p>
-        </div>
+        <PhotoUploader photos={fotos} onChange={setFotos} />
       </fieldset>
 
       <div className="flex gap-3">

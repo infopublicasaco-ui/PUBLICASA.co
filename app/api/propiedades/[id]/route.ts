@@ -140,11 +140,13 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     prisma.propertyPhoto.deleteMany({
       where: { propertyId: params.id },
     }),
-    ...urls.map((url) =>
+    ...urls.map((url, i) =>
       prisma.propertyPhoto.create({
         data: {
           propertyId: params.id,
           url,
+          orden: i,
+          esPortada: i === 0,
         },
       })
     ),

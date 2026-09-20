@@ -9,7 +9,7 @@ export default async function EditarPage({ params }: { params: { id: string } })
 
   const propiedad = await prisma.property.findUnique({
     where: { id: params.id },
-    include: { fotos: true },
+    include: { fotos: { orderBy: { orden: "asc" } } },
   });
 
   if (!propiedad) notFound();

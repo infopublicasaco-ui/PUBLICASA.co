@@ -8,6 +8,7 @@ import { CurrencyInput } from "./CurrencyInput";
 import { StepperInput } from "./StepperInput";
 import { LocationPicker } from "./LocationPicker";
 import { WizardProgress } from "./WizardProgress";
+import { PhotoUploader } from "@/components/shared/PhotoUploader";
 
 type Tipo = "CASA" | "APARTAMENTO" | "LOTE" | "LOCAL";
 type Operacion = "VENTA" | "ARRIENDO";
@@ -98,7 +99,7 @@ export function PublicarWizard() {
   const [adicionales, setAdicionales] = useState<Record<string, boolean>>({});
 
   // Paso 5
-  const [fotosTexto, setFotosTexto] = useState("");
+  const [fotos, setFotos] = useState<string[]>([]);
 
   const esLote = tipo === "LOTE";
 
@@ -144,11 +145,6 @@ export function PublicarWizard() {
 
     setLoading(true);
     setError(null);
-
-    const fotos = fotosTexto
-      .split("\n")
-      .map((u) => u.trim())
-      .filter(Boolean);
 
     const sectorEntries = Object.entries(sector).filter(([, v]) => v);
     const caracteristicasSector =
@@ -509,21 +505,7 @@ export function PublicarWizard() {
             <div className="rounded-lg bg-white p-6 shadow-sm">
               <h2 className="text-xl font-semibold text-gray-900 mb-6">Fotos</h2>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  URLs de fotos (una por línea)
-                </label>
-                <textarea
-                  value={fotosTexto}
-                  onChange={(e) => setFotosTexto(e.target.value)}
-                  rows={4}
-                  className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm font-mono"
-                  placeholder="https://ejemplo.com/foto1.jpg&#10;https://ejemplo.com/foto2.jpg"
-                />
-                <p className="mt-2 text-xs text-gray-500">
-                  Pega las URLs directas a las fotos. Pronto podrás subirlas directamente.
-                </p>
-              </div>
+              <PhotoUploader photos={fotos} onChange={setFotos} />
             </div>
           </div>
         )}
