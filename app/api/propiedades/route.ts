@@ -48,6 +48,8 @@ export async function POST(request: Request) {
     caracteristicasSector,
     caracteristicasAdicionales,
     fotos,
+    telefono,
+    whatsapp,
   } = body as Record<string, unknown>;
 
   if (
@@ -60,10 +62,14 @@ export async function POST(request: Request) {
     !barrio ||
     !direccion ||
     typeof latitud !== "number" ||
-    typeof longitud !== "number"
+    typeof longitud !== "number" ||
+    (!telefono && !whatsapp)
   ) {
     return NextResponse.json(
-      { error: "Faltan campos obligatorios (título, descripción, precio, ciudad, barrio, dirección o ubicación)." },
+      {
+        error:
+          "Faltan campos obligatorios (título, descripción, precio, ciudad, barrio, dirección, ubicación o un teléfono/WhatsApp de contacto).",
+      },
       { status: 400 }
     );
   }
@@ -78,6 +84,16 @@ export async function POST(request: Request) {
   const urls = Array.isArray(fotos)
     ? fotos.filter((u): u is string => typeof u === "string" && u.trim().length > 0)
     : [];
+
+  // Guarda el teléfono/WhatsApp en el perfil también, para que quede
+  // disponible en futuras publicaciones y en el botón de contacto directo.
+  await prisma.user.update({
+    where: { id: session.user.id },
+    data: {
+      ...(typeof telefono === "string" && telefono ? { telefono } : {}),
+      ...(typeof whatsapp === "string" && whatsapp ? { whatsapp } : {}),
+    },
+  });
 
   const property = await prisma.property.create({
     data: {

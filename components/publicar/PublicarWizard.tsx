@@ -58,7 +58,12 @@ const STEPS = [
   { id: 5, label: "Fotos y publicar" },
 ];
 
-export function PublicarWizard() {
+type PublicarWizardProps = {
+  initialTelefono?: string;
+  initialWhatsapp?: string;
+};
+
+export function PublicarWizard({ initialTelefono = "", initialWhatsapp = "" }: PublicarWizardProps) {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
   const [error, setError] = useState<string | null>(null);
@@ -100,6 +105,8 @@ export function PublicarWizard() {
 
   // Paso 5
   const [fotos, setFotos] = useState<string[]>([]);
+  const [telefono, setTelefono] = useState(initialTelefono);
+  const [whatsapp, setWhatsapp] = useState(initialWhatsapp);
 
   const esLote = tipo === "LOTE";
 
@@ -123,6 +130,10 @@ export function PublicarWizard() {
       case 4:
         return true;
       case 5:
+        if (!telefono.trim() && !whatsapp.trim()) {
+          setError("Agrega un teléfono o WhatsApp de contacto para que los interesados puedan escribirte.");
+          return false;
+        }
         return true;
       default:
         return true;
@@ -206,6 +217,8 @@ export function PublicarWizard() {
         caracteristicasSector,
         caracteristicasAdicionales,
         fotos,
+        telefono: telefono.trim() || null,
+        whatsapp: whatsapp.trim() || null,
       }),
     });
 
@@ -506,6 +519,36 @@ export function PublicarWizard() {
               <h2 className="text-xl font-semibold text-gray-900 mb-6">Fotos</h2>
 
               <PhotoUploader photos={fotos} onChange={setFotos} />
+            </div>
+
+            <div className="rounded-lg bg-white p-6 shadow-sm">
+              <h2 className="text-xl font-semibold text-gray-900 mb-2">Datos de contacto</h2>
+              <p className="text-sm text-gray-500 mb-6">
+                Así te van a contactar los interesados en este inmueble. Necesitas al menos un teléfono o WhatsApp.
+              </p>
+
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Teléfono</label>
+                  <input
+                    type="tel"
+                    value={telefono}
+                    onChange={(e) => setTelefono(e.target.value)}
+                    className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-brand-blue focus:ring-1 focus:ring-brand-blue"
+                    placeholder="3001234567"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">WhatsApp</label>
+                  <input
+                    type="tel"
+                    value={whatsapp}
+                    onChange={(e) => setWhatsapp(e.target.value)}
+                    className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-brand-blue focus:ring-1 focus:ring-brand-blue"
+                    placeholder="3001234567"
+                  />
+                </div>
+              </div>
             </div>
           </div>
         )}
