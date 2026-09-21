@@ -8,7 +8,20 @@ async function hashPassword(password: string) {
   return bcrypt.hash(password, 10);
 }
 
+const CONFIRM_FLAG = "--confirmo-que-borro-produccion";
+
 async function main() {
+  if (!process.argv.includes(CONFIRM_FLAG)) {
+    console.error(
+      "\n⚠️  ESTE SCRIPT BORRA TODOS LOS DATOS (usuarios, inmuebles, fotos, mensajes) de la\n" +
+        "base de datos configurada en DATABASE_URL — y hoy en día esa base es la MISMA que\n" +
+        "usa publicasa.co en producción. No hay un ambiente de desarrollo separado.\n\n" +
+        "Si de verdad quieres reemplazar todo por los datos de ejemplo, corre:\n" +
+        `  npm run db:seed -- ${CONFIRM_FLAG}\n`
+    );
+    process.exit(1);
+  }
+
   // Orden de borrado respeta las relaciones (hijos antes que padres).
   await prisma.contactRequest.deleteMany();
   await prisma.message.deleteMany();
