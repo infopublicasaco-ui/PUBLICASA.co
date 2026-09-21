@@ -11,7 +11,7 @@ export function FeaturedSpaces() {
       </div>
       <h3 className="mt-4 text-lg font-extrabold text-brand-blue">Espacios destacados</h3>
       <p className="mt-1 text-sm uppercase text-gray-700">
-        Para ti inmuebles con diseños, ubicaciones o características únicas, como tú.
+        Inmuebles con diseños, ubicaciones o características únicas, como tú.
       </p>
     </div>
   );
