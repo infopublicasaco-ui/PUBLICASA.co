@@ -148,6 +148,7 @@ model Property {
   direccion    String
   latitud      Float
   longitud     Float
+  telefonoContacto String? @map("telefono_contacto")
   
   caracteristicasSector      Json? @map("caracteristicas_sector")
   caracteristicasAdicionales Json? @map("caracteristicas_adicionales")

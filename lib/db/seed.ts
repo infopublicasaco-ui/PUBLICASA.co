@@ -22,7 +22,7 @@ async function main() {
   const [camila, andres, laura, carlos] = await Promise.all([
     prisma.user.create({
       data: {
-        email: "camila.propietaria@example.com",
+        email: "camila.rojas@publicasa.co",
         password: defaultPassword,
         nombre: "Camila Rojas",
         telefono: "3001234567",
@@ -32,7 +32,7 @@ async function main() {
     }),
     prisma.user.create({
       data: {
-        email: "andres.propietario@example.com",
+        email: "andres.gomez@publicasa.co",
         password: defaultPassword,
         nombre: "Andrés Gómez",
         telefono: "3009876543",
@@ -42,7 +42,7 @@ async function main() {
     }),
     prisma.user.create({
       data: {
-        email: "laura.compradora@example.com",
+        email: "laura.martinez@publicasa.co",
         password: defaultPassword,
         nombre: "Laura Martínez",
         telefono: "3012223344",
@@ -51,7 +51,7 @@ async function main() {
     }),
     prisma.user.create({
       data: {
-        email: "carlos.comprador@example.com",
+        email: "carlos.lopez@publicasa.co",
         password: defaultPassword,
         nombre: "Carlos López",
         telefono: "3015556666",
@@ -78,18 +78,35 @@ async function main() {
   await prisma.property.createMany({
     data: [
       {
-        titulo: "Apartamento de lujo en Rosales",
-        descripcion: "Hermoso apartamento moderno con vista a la ciudad, piscina y gimnasio.",
+        titulo: "Apartamento Naranjo",
+        descripcion: "Hermoso apartamento en zona residencial.",
         tipo: PropertyType.APARTAMENTO,
         operacion: OperationType.VENTA,
         estado: PropertyStatus.ACTIVO,
-        precio: new Decimal("850000000"),
-        areaPrivadaM2: 120,
+        precio: new Decimal("350000000"),
+        areaPrivadaM2: 90,
         ciudad: "Bogotá",
-        barrio: "Rosales",
-        direccion: "Carrera 7 #115-50",
-        latitud: 4.6596,
-        longitud: -74.0447,
+        barrio: "Naranjo",
+        direccion: "Carrera 5 #50-20",
+        latitud: 4.6520,
+        longitud: -74.0780,
+        telefonoContacto: "3043975245",
+        propietarioId: camila.id,
+      },
+      {
+        titulo: "Casa en arriendo - Usaquén",
+        descripcion: "Casa de 3 habitaciones con garaje.",
+        tipo: PropertyType.CASA,
+        operacion: OperationType.ARRIENDO,
+        estado: PropertyStatus.ACTIVO,
+        precio: new Decimal("3500000"),
+        areaPrivadaM2: 150,
+        ciudad: "Bogotá",
+        barrio: "Usaquén",
+        direccion: "Calle 120 #15-40",
+        latitud: 4.6901,
+        longitud: -74.0235,
+        telefonoContacto: "3043975245",
         propietarioId: camila.id,
       },
       {
