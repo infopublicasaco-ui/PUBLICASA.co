@@ -206,9 +206,28 @@ Ver [.env.example](.env.example). Copiar a `.env` y completar:
 - `NEXTAUTH_SECRET`: generar con `openssl rand -base64 32`.
 - `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET`: opcionales, solo si se
   quiere activar login con Google.
+- `NEXT_PUBLIC_GA_MEASUREMENT_ID`: opcional, Measurement ID de GA4
+  (`G-XXXXXXX`). Ver sección "Google Analytics" abajo.
 - Claves de Google Maps y de proveedores de IA (Anthropic/OpenAI) se
   usarán cuando se implemente el navegador de mapa y el pipeline de
   agentes respectivamente.
+
+## Google Analytics
+
+- Se usa `@next/third-parties` (paquete oficial de Next.js/Google), no
+  un `<script>` a mano ni `react-ga`: inyecta gtag.js de forma
+  optimizada (carga diferida, sin bloquear el render) y es el método
+  que recomienda la propia documentación de Next.js 14 App Router.
+- **Opcional igual que Google OAuth**: `<GoogleAnalytics gaId={...} />`
+  solo se renderiza en `app/layout.tsx` si `NEXT_PUBLIC_GA_MEASUREMENT_ID`
+  está en `.env`. Sin esa variable, no se carga ningún script de
+  analítica y el resto del sitio funciona igual.
+- Va en el layout raíz (no por página) para medir todo el sitio,
+  incluidas las páginas SSR/ISR — `@next/third-parties` funciona en
+  Server Components sin necesitar marcar el layout como dinámico.
+- La Política de Cookies (`/legal/cookies`) ya mencionaba Google
+  Analytics como cookie de medición; con esta variable configurada esa
+  mención pasa a ser cierta en producción.
 
 ## Cómo correr el proyecto
 

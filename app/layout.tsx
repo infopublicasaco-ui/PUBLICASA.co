@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { GoogleAnalytics } from "@next/third-parties/google";
 import "./globals.css";
 import { Nav } from "@/components/Nav";
 import { SessionProvider } from "@/components/SessionProvider";
@@ -15,6 +16,8 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const gaMeasurementId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
+
   return (
     <html lang="es">
       <body className="flex flex-col min-h-screen">
@@ -24,6 +27,9 @@ export default function RootLayout({
           <Footer />
         </SessionProvider>
       </body>
+      {/* Google Analytics es opcional: solo se carga si hay Measurement ID en
+          .env. Ver NEXT_PUBLIC_GA_MEASUREMENT_ID en .env.example. */}
+      {gaMeasurementId && <GoogleAnalytics gaId={gaMeasurementId} />}
     </html>
   );
 }
